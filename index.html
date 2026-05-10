@@ -466,11 +466,13 @@
             </button>
         </div>
         <div id="pronSupport" style="display:none">
-            <div class="pron-support">
-                <strong>Navigateur non compatible.</strong><br>
-                La reconnaissance vocale fonctionne sur :<br>
-                • Chrome (Mac / Android / PC)<br>
-                • Safari iOS 16+ (autorise le micro dans les réglages)
+            <div class="pron-support" id="pronSupportMsg">
+                <strong>Ouvre l'app dans Safari</strong><br>
+                La reconnaissance vocale ne fonctionne pas en mode app installée (PWA) sur iOS.<br><br>
+                <strong>Comment faire :</strong><br>
+                1. Ouvre Safari<br>
+                2. Va sur <strong>viet-revision.vercel.app</strong><br>
+                3. Utilise la prononciation depuis le navigateur
             </div>
         </div>
         <div class="pron-result" id="pronResult" style="display:none">
@@ -971,6 +973,8 @@ function retryErrors(){
    ── PRONONCIATION ──
 ══════════════════════════════ */
 const hasSpeechReco=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+// iOS PWA standalone mode : SpeechRecognition existe mais ne répond pas
+const isPWA=window.navigator.standalone===true;
 
 function renderPron(){
     ['card','fb','secE','secQ','secP','secF','end'].forEach(id=>document.getElementById(id).style.display='none');
@@ -982,8 +986,9 @@ function renderPron(){
     document.getElementById('pronTrans').textContent=c.fr;
     document.getElementById('pronPos').textContent=(pronIdx+1)+' / '+deck.length;
     document.getElementById('pronResult').style.display='none';
-    document.getElementById('pronSupport').style.display=hasSpeechReco?'none':'';
-    document.getElementById('micBtn').disabled=!hasSpeechReco;
+    const noReco=!hasSpeechReco||isPWA;
+    document.getElementById('pronSupport').style.display=noReco?'':'none';
+    document.getElementById('micBtn').disabled=noReco;
     document.getElementById('micBtn').classList.remove('listening');
     document.getElementById('micTxt').textContent='Parler';
     updProg(pronIdx+1,deck.length);
@@ -1025,7 +1030,21 @@ async function startReco(){
     r.lang='vi-VN';
     r.interimResults=false;
     r.maxAlternatives=5;
+    let done=false;
+    const timeout=setTimeout(()=>{
+        if(!done){done=true;try{r.stop();}catch{}
+            btn.classList.remove('listening');
+            document.getElementById('micTxt').textContent='Parler';
+            const res=document.getElementById('pronResult');
+            res.style.display='';
+            document.getElementById('pronDiff').innerHTML='';
+            document.getElementById('pronHeard').textContent='Rien entendu — réessaie';
+            document.getElementById('pronVerdict').textContent='';
+            document.getElementById('pronVerdict').className='pron-verdict';
+        }
+    },10000);
     r.onresult=e=>{
+        if(done)return;done=true;clearTimeout(timeout);
         btn.classList.remove('listening');
         document.getElementById('micTxt').textContent='Réessayer';
         const target=deck[pronIdx].vn;
@@ -1033,6 +1052,7 @@ async function startReco(){
         showPronResult(alts,target);
     };
     r.onerror=e=>{
+        if(done)return;done=true;clearTimeout(timeout);
         btn.classList.remove('listening');
         document.getElementById('micTxt').textContent='Parler';
         const msg=e.error==='not-allowed'?'Micro bloqué — ouvre Safari > Réglages > Micro et autorise':e.error==='no-speech'?'Rien entendu, réessaie':'Erreur : '+e.error;
@@ -1044,6 +1064,7 @@ async function startReco(){
         document.getElementById('pronVerdict').className='pron-verdict';
     };
     r.onend=()=>{
+        clearTimeout(timeout);
         btn.classList.remove('listening');
         if(document.getElementById('micTxt').textContent==='Écoute...')
             document.getElementById('micTxt').textContent='Parler';
