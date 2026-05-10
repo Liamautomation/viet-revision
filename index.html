@@ -343,6 +343,11 @@
         <button class="cat-btn" data-cat="nombres" data-label="Dizaines" onclick="setCat(this)">Dizaines</button>
         <button class="cat-btn" data-cat="phrases" data-label="Phrases" onclick="setCat(this)">Phrases</button>
         <button class="cat-btn" data-cat="consonnes" data-label="Consonnes" onclick="setCat(this)">Consonnes</button>
+        <button class="cat-btn" data-cat="salutations" data-label="Salutations" onclick="setCat(this)">Salutations</button>
+        <button class="cat-btn" data-cat="présentation" data-label="Présentation" onclick="setCat(this)">Présentation</button>
+        <button class="cat-btn" data-cat="restaurant" data-label="Restaurant" onclick="setCat(this)">Restaurant</button>
+        <button class="cat-btn" data-cat="questions" data-label="Questions" onclick="setCat(this)">Questions</button>
+        <button class="cat-btn" data-cat="temps" data-label="Temps" onclick="setCat(this)">Temps</button>
     </div>
 
     <!-- Progression -->
@@ -575,6 +580,55 @@ const vocab=[
     {fr:"raisin",vn:"nho",cat:"consonnes"},
     {fr:"maïs",vn:"ngô",cat:"consonnes"},
     {fr:"écouter",vn:"nghe",cat:"consonnes"},
+    // Salutations — photo 1
+    {fr:"Salut (ami·e)",vn:"Chào bạn",cat:"salutations"},
+    {fr:"Bonjour (homme plus âgé)",vn:"Chào anh",cat:"salutations"},
+    {fr:"Bonjour (femme plus âgée)",vn:"Chào chị",cat:"salutations"},
+    {fr:"Bonjour (personne plus jeune)",vn:"Chào em",cat:"salutations"},
+    {fr:"Bonjour (femme, respect)",vn:"Chào cô",cat:"salutations"},
+    {fr:"Bonjour (homme, respect)",vn:"Chào chú",cat:"salutations"},
+    {fr:"Bonjour (personne très âgée)",vn:"Chào bác",cat:"salutations"},
+    {fr:"Salut / au revoir (amical)",vn:"Chào nhé",cat:"salutations"},
+    {fr:"Merci",vn:"Cảm ơn",cat:"salutations"},
+    {fr:"Merci (neutre, avec pronom)",vn:"Cảm ơn bạn",cat:"salutations"},
+    {fr:"Merci beaucoup",vn:"Cảm ơn nhiều",cat:"salutations"},
+    {fr:"Merci (amical, chaleureux)",vn:"Cảm ơn nhé",cat:"salutations"},
+    // Photo 2 — expressions + présentation + restaurant
+    {fr:"Pas de soucis / T'inquiète",vn:"Không sao",cat:"salutations"},
+    {fr:"De rien",vn:"Không có gì",cat:"salutations"},
+    {fr:"Enchanté / Ravi de te rencontrer",vn:"Rất vui được gặp bạn",cat:"salutations"},
+    {fr:"Je m'appelle Liam",vn:"Tôi tên là Liam",cat:"présentation"},
+    {fr:"Je suis Liam (tôi ou mình, les deux sont corrects)",vn:"Tôi là Liam",cat:"présentation"},
+    {fr:"Je suis Français",vn:"Tôi là người Pháp",cat:"présentation"},
+    {fr:"J'apprends le vietnamien",vn:"Tôi đang học tiếng Việt",cat:"présentation"},
+    {fr:"Vous avez une réduction ?",vn:"Có giảm giá không ?",cat:"phrases"},
+    {fr:"Où sont les toilettes ?",vn:"Nhà vệ sinh ở đâu ?",cat:"phrases"},
+    {fr:"Bon appétit !",vn:"Chúc ngon miệng !",cat:"restaurant"},
+    {fr:"Donnez-moi ce plat SVP",vn:"Cho tôi món này nhé",cat:"restaurant"},
+    {fr:"Je voudrais ceci SVP",vn:"Cho tôi cái này nhé",cat:"restaurant"},
+    // Photo 3 — questions + phrase utile
+    {fr:"Qui ?",vn:"Ai ?",cat:"questions"},
+    {fr:"Quoi ?",vn:"Cái gì ?",cat:"questions"},
+    {fr:"Pourquoi ?",vn:"Tại sao ?",cat:"questions"},
+    {fr:"Comment ?",vn:"Làm sao ?",cat:"questions"},
+    {fr:"Où ?",vn:"Ở đâu ?",cat:"questions"},
+    {fr:"Quand ?",vn:"Khi nào ?",cat:"questions"},
+    {fr:"Combien ?",vn:"Bao nhiêu ?",cat:"questions"},
+    {fr:"Lequel / Laquelle ?",vn:"Cái nào ?",cat:"questions"},
+    {fr:"Je ne comprends pas",vn:"Tôi không hiểu",cat:"phrases"},
+    // Photo 4 — temps + phrases utiles + restaurant
+    {fr:"heure",vn:"giờ",cat:"temps"},
+    {fr:"minutes",vn:"phút",cat:"temps"},
+    {fr:"Ça va / Fine",vn:"Ổn",cat:"phrases"},
+    {fr:"Oui / Correct (poli)",vn:"Đúng",cat:"phrases"},
+    {fr:"Et toi ?",vn:"Còn bạn ?",cat:"phrases"},
+    {fr:"dans (temps)",vn:"trong",cat:"phrases"},
+    {fr:"Je vais partir",vn:"Tôi sẽ đi",cat:"phrases"},
+    {fr:"Je vais rentrer à la maison",vn:"Tôi sẽ về nhà",cat:"phrases"},
+    {fr:"Que veux-tu manger ?",vn:"Anh muốn ăn gì ?",cat:"restaurant"},
+    {fr:"Donnez-moi un(e)...",vn:"Cho mình một...",cat:"restaurant"},
+    {fr:"bol",vn:"tô",cat:"restaurant"},
+    {fr:"assiette",vn:"đĩa",cat:"restaurant"},
 ];
 
 /* ── ÉTAT GLOBAL ── */
@@ -942,13 +996,31 @@ function normWord(s){
     return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
 }
 
-function startReco(){
+async function startReco(){
     const SpeechReco=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!SpeechReco)return;
     const btn=document.getElementById('micBtn');
     btn.classList.add('listening');
-    document.getElementById('micTxt').textContent='Écoute...';
+    document.getElementById('micTxt').textContent='Autorisation...';
     document.getElementById('pronResult').style.display='none';
+    // iOS PWA : getUserMedia force la dialog permission microphone native
+    if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+        try{
+            const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+            stream.getTracks().forEach(t=>t.stop());
+        }catch(err){
+            btn.classList.remove('listening');
+            document.getElementById('micTxt').textContent='Parler';
+            const res=document.getElementById('pronResult');
+            res.style.display='';
+            document.getElementById('pronDiff').innerHTML='';
+            document.getElementById('pronHeard').textContent=err.name==='NotAllowedError'?'Micro refusé — ouvre Safari > Réglages > Confidentialité > Micro et autorise cette page':'Erreur micro : '+err.message;
+            document.getElementById('pronVerdict').textContent='';
+            document.getElementById('pronVerdict').className='pron-verdict';
+            return;
+        }
+    }
+    document.getElementById('micTxt').textContent='Écoute...';
     const r=new SpeechReco();
     r.lang='vi-VN';
     r.interimResults=false;
@@ -956,7 +1028,6 @@ function startReco(){
     r.onresult=e=>{
         btn.classList.remove('listening');
         document.getElementById('micTxt').textContent='Réessayer';
-        // Cherche le meilleur résultat parmi les alternatives
         const target=deck[pronIdx].vn;
         const alts=Array.from(e.results[0]).map(a=>a.transcript);
         showPronResult(alts,target);
@@ -964,7 +1035,7 @@ function startReco(){
     r.onerror=e=>{
         btn.classList.remove('listening');
         document.getElementById('micTxt').textContent='Parler';
-        const msg=e.error==='not-allowed'?'Micro bloqué — autorise-le dans les réglages':e.error==='no-speech'?'Rien entendu, réessaie':'Erreur : '+e.error;
+        const msg=e.error==='not-allowed'?'Micro bloqué — ouvre Safari > Réglages > Micro et autorise':e.error==='no-speech'?'Rien entendu, réessaie':'Erreur : '+e.error;
         const res=document.getElementById('pronResult');
         res.style.display='';
         document.getElementById('pronDiff').innerHTML='';
