@@ -1,4 +1,4 @@
-const CACHE = 'viet-v5';
+const CACHE = 'viet-v6';
 const FILES = ['./index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
