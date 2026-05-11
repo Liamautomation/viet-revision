@@ -201,6 +201,26 @@
         .g-rule{padding:10px 13px;background:rgba(81,47,235,.1);border:1px solid rgba(81,47,235,.2);border-radius:9px;font-size:.78rem;color:var(--muted);line-height:1.6;}
         .g-rule strong{color:#a78bfa;}
 
+        /* ── Examen ── */
+        .exam-title{font-size:1.05rem;font-weight:800;margin-bottom:6px;text-align:center;}
+        .exam-sub{font-size:.73rem;color:var(--muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+        .exam-n-row{display:flex;gap:7px;margin-bottom:14px;}
+        .exam-n-btn,.exam-dir-btn{flex:1;padding:11px 4px;background:var(--s1);border:2px solid var(--s2);border-radius:11px;color:var(--muted);font-size:.86rem;font-weight:700;cursor:pointer;transition:all var(--t);min-height:42px;}
+        .exam-n-btn.active,.exam-dir-btn.active{border-color:var(--p);background:var(--pa);color:#a78bfa;}
+        .exam-counter{font-size:.76rem;color:var(--muted);margin-bottom:8px;text-align:center;font-weight:700;}
+        .exam-choice{width:100%;padding:13px 15px;background:var(--s1);border:2px solid var(--s2);border-radius:11px;color:var(--text);font-size:.88rem;text-align:left;cursor:pointer;transition:border-color .15s,background .15s,color .15s;font-family:inherit;margin-bottom:7px;display:block;}
+        .exam-choice:hover:not(:disabled){border-color:var(--pl);background:var(--s2);}
+        .exam-choice.sel-ok{border-color:var(--ok)!important;background:rgba(34,197,94,.12)!important;color:#4ade80!important;}
+        .exam-choice.sel-ko{border-color:var(--ko)!important;background:rgba(239,68,68,.1)!important;color:#f87171!important;}
+        .exam-choice.reveal-ok{border-color:var(--ok)!important;background:rgba(34,197,94,.07)!important;color:#4ade80!important;}
+        .exam-score-big{font-size:2.8rem;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--pl),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+        .exam-grade{font-size:.88rem;text-align:center;color:var(--muted);margin-bottom:18px;font-weight:700;}
+        .exam-section-title{font-size:.73rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:9px;font-weight:700;}
+        .exam-wrong-item{background:var(--s1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:11px 13px;margin-bottom:7px;}
+        .exam-wrong-q{font-size:.74rem;color:var(--muted);margin-bottom:4px;}
+        .exam-wrong-correct{font-size:.88rem;color:#4ade80;font-weight:700;}
+        .exam-wrong-said{font-size:.78rem;color:#f87171;margin-top:2px;}
+
         @media(prefers-reduced-motion:reduce){
             *,*::before,*::after{transition:none!important;animation:none!important;}
         }
@@ -259,6 +279,12 @@
         <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
         <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
     </symbol>
+    <symbol id="i-exam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="2"/>
+        <line x1="9" y1="12" x2="15" y2="12"/>
+        <line x1="9" y1="16" x2="13" y2="16"/>
+    </symbol>
 </svg>
 
 <header>
@@ -300,6 +326,9 @@
         </button>
         <button class="seg-btn" data-tab="prononciation" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-mic"/></svg> Pronon.
+        </button>
+        <button class="seg-btn" data-tab="examen" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-exam"/></svg> Examen
         </button>
     </div>
 
@@ -351,6 +380,8 @@
         <button class="cat-btn" data-cat="pronoms" data-label="Pronoms" onclick="setCat(this)">Pronoms</button>
         <button class="cat-btn" data-cat="transport" data-label="Transport" onclick="setCat(this)">Transport</button>
         <button class="cat-btn" data-cat="verbes" data-label="Verbes" onclick="setCat(this)">Verbes</button>
+        <button class="cat-btn" data-cat="adjectifs" data-label="Adjectifs" onclick="setCat(this)">Adjectifs</button>
+        <button class="cat-btn" data-cat="moment" data-label="Moment" onclick="setCat(this)">Moment</button>
     </div>
 
     <!-- Progression -->
@@ -493,6 +524,44 @@
             </button>
             <button class="btn btn-s" style="flex:none;min-width:52px;padding:10px" onclick="pronNext()">
                 <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Section Examen ── -->
+    <div id="secExam" style="display:none">
+        <div id="examSetup">
+            <div class="exam-title">Mode Examen</div>
+            <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-bottom:14px">QCM · 4 choix · aucun indice pendant l'exam</p>
+            <div class="exam-sub">Nombre de questions</div>
+            <div class="exam-n-row">
+                <button class="exam-n-btn active" onclick="setExamN(this,10)">10</button>
+                <button class="exam-n-btn" onclick="setExamN(this,20)">20</button>
+                <button class="exam-n-btn" onclick="setExamN(this,0)">Tout</button>
+            </div>
+            <div class="exam-sub">Direction</div>
+            <div class="exam-n-row">
+                <button class="exam-dir-btn active" onclick="setExamDir(this,'fr-vn')">FR → VN</button>
+                <button class="exam-dir-btn" onclick="setExamDir(this,'vn-fr')">VN → FR</button>
+            </div>
+            <p style="font-size:.73rem;color:var(--muted);margin-bottom:12px">Catégorie active : filtrable avec les pills ci-dessus</p>
+            <button class="btn btn-p btn-full" onclick="startExam()">
+                <svg class="ico"><use href="#i-check"/></svg> Démarrer l'examen
+            </button>
+        </div>
+        <div id="examPlay" style="display:none">
+            <div class="exam-counter" id="examCounter">Question 1 / 10</div>
+            <div class="card" style="margin-bottom:14px;min-height:100px">
+                <div class="card-q" id="examQ" style="font-size:1.45rem">—</div>
+            </div>
+            <div id="examChoices"></div>
+        </div>
+        <div id="examResults" style="display:none">
+            <div class="exam-score-big" id="examScoreBig">—</div>
+            <div class="exam-grade" id="examGrade">—</div>
+            <div id="examWrongList"></div>
+            <button class="btn btn-p btn-full" style="margin-top:14px" onclick="renderExamSetup()">
+                <svg class="ico"><use href="#i-refresh"/></svg> Nouvel examen
             </button>
         </div>
     </div>
@@ -659,6 +728,45 @@ const vocab=[
     {fr:"ne pas avoir / il n'y a pas",vn:"không có",cat:"phrases"},
     {fr:"en train de (présent continu, avant le verbe)",vn:"đang",cat:"phrases"},
     {fr:"marqueur du passé (avant le verbe)",vn:"đã",cat:"phrases"},
+    // Adjectifs essentiels
+    {fr:"bon / bien",vn:"tốt",cat:"adjectifs"},
+    {fr:"délicieux",vn:"ngon",cat:"adjectifs"},
+    {fr:"chaud",vn:"nóng",cat:"adjectifs"},
+    {fr:"froid",vn:"lạnh",cat:"adjectifs"},
+    {fr:"grand / gros",vn:"lớn",cat:"adjectifs"},
+    {fr:"petit",vn:"nhỏ",cat:"adjectifs"},
+    {fr:"beau / belle",vn:"đẹp",cat:"adjectifs"},
+    {fr:"cher",vn:"đắt",cat:"adjectifs"},
+    {fr:"pas cher / bon marché",vn:"rẻ",cat:"adjectifs"},
+    {fr:"fatigué",vn:"mệt",cat:"adjectifs"},
+    {fr:"content / heureux",vn:"vui",cat:"adjectifs"},
+    {fr:"triste",vn:"buồn",cat:"adjectifs"},
+    // Moment — expressions de temps
+    {fr:"aujourd'hui",vn:"hôm nay",cat:"moment"},
+    {fr:"hier",vn:"hôm qua",cat:"moment"},
+    {fr:"demain",vn:"ngày mai",cat:"moment"},
+    {fr:"maintenant",vn:"bây giờ",cat:"moment"},
+    {fr:"matin",vn:"sáng",cat:"moment"},
+    {fr:"après-midi",vn:"chiều",cat:"moment"},
+    {fr:"soir",vn:"tối",cat:"moment"},
+    // Sensations + connecteurs + plage
+    {fr:"avoir faim",vn:"đói",cat:"phrases"},
+    {fr:"avoir soif",vn:"khát",cat:"phrases"},
+    {fr:"et",vn:"và",cat:"phrases"},
+    {fr:"mais",vn:"nhưng",cat:"phrases"},
+    {fr:"parce que",vn:"vì",cat:"phrases"},
+    {fr:"mer / plage",vn:"biển",cat:"phrases"},
+    {fr:"eau",vn:"nước",cat:"phrases"},
+    {fr:"soleil / ensoleillé",vn:"nắng",cat:"phrases"},
+    // Phrases avec questions
+    {fr:"Quel âge as-tu ?",vn:"Bạn bao nhiêu tuổi ?",cat:"questions"},
+    {fr:"Tu es où ?",vn:"Bạn ở đâu ?",cat:"questions"},
+    {fr:"Tu viens d'où ?",vn:"Bạn đến từ đâu ?",cat:"questions"},
+    {fr:"Tu vas où ?",vn:"Bạn đi đâu ?",cat:"questions"},
+    {fr:"Tu fais quoi ? / Qu'est-ce que tu fais ?",vn:"Bạn làm gì ?",cat:"questions"},
+    {fr:"Tu t'appelles comment ?",vn:"Bạn tên là gì ?",cat:"questions"},
+    {fr:"C'est quoi ça ?",vn:"Cái này là cái gì ?",cat:"questions"},
+    {fr:"C'est ça ? / N'est-ce pas ?",vn:"Có phải không ?",cat:"questions"},
     // Photo 13 — marqueurs de temps (suite) + verbes
     {fr:"déjà / c'est fait (après le verbe)",vn:"rồi",cat:"phrases"},
     {fr:"pas encore (avant le verbe)",vn:"chưa",cat:"phrases"},
@@ -821,16 +929,15 @@ function setTab(btn){
     mainTab=btn.dataset.tab;
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
-    flashIdx=0;flashFlipped=false;
-    pronIdx=0;
-    // Visibilité mode row
-    document.getElementById('modeRow').style.display=mainTab==='prononciation'?'none':'';
-    // Visibilité ex sub-row
+    flashIdx=0;flashFlipped=false;pronIdx=0;
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation';
+    document.getElementById('modeRow').style.display=(isPron||isExam)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
-    // Scores
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
+    document.getElementById('secExam').style.display=isExam?'':'none';
     if(mainTab==='fiches')renderFlash();
-    else if(mainTab==='prononciation')renderPron();
+    else if(isPron)renderPron();
+    else if(isExam)renderExamSetup();
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
 
@@ -891,7 +998,8 @@ function bsp(){const i=document.getElementById('ans'),s=i.selectionStart;if(s>0)
 ══════════════════════════════ */
 function renderFlash(){
     // Cacher tout sauf secF
-    ['card','fb','secE','secQ','secP','secPron','end'].forEach(id=>document.getElementById(id).style.display='none');
+    ['card','fb','secE','secQ','secP','secPron','secExam','end'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('end').classList.remove('show');
     document.getElementById('secF').style.display='';
     if(!deck.length)return;
     const c=deck[flashIdx];
@@ -919,6 +1027,7 @@ function showCard(){
     document.getElementById('end').classList.remove('show');document.getElementById('end').style.display='none';
     document.getElementById('secF').style.display='none';
     document.getElementById('secPron').style.display='none';
+    document.getElementById('secExam').style.display='none';
     ['card','fb','secE','secQ','secP'].forEach(id=>document.getElementById(id).style.removeProperty('display'));
     if(idx>=deck.length&&exT!=='paires'){showEnd();return;}
     const isE=exT==='ecriture',isQ=exT==='qcm',isP=exT==='paires';
@@ -1067,12 +1176,82 @@ function retryErrors(){
 /* ══════════════════════════════
    ── PRONONCIATION ──
 ══════════════════════════════ */
+/* ══════════════════════════════
+   ── EXAMEN ──
+══════════════════════════════ */
+let examDeck=[],examIdx=0,examAnswers=[],examN=10,examDir='fr-vn';
+function renderExamSetup(){
+    ['card','fb','secE','secQ','secP','secF','secPron','end'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('end').classList.remove('show');
+    document.getElementById('secExam').style.display='';
+    document.getElementById('examSetup').style.display='';
+    document.getElementById('examPlay').style.display='none';
+    document.getElementById('examResults').style.display='none';
+    updProg(0,0);
+}
+function setExamN(btn,n){examN=n;document.querySelectorAll('.exam-n-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function setExamDir(btn,d){examDir=d;document.querySelectorAll('.exam-dir-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function startExam(){
+    let pool=cat==='all'?[...vocab]:vocab.filter(v=>v.cat===cat);
+    shuf(pool);
+    examDeck=examN===0?pool:pool.slice(0,Math.min(examN,pool.length));
+    examIdx=0;examAnswers=[];
+    document.getElementById('examSetup').style.display='none';
+    document.getElementById('examPlay').style.display='';
+    renderExamQ();
+}
+function renderExamQ(){
+    if(examIdx>=examDeck.length){showExamResults();return;}
+    const c=examDeck[examIdx];
+    const q=examDir==='fr-vn'?c.fr:c.vn;
+    const correct=examDir==='fr-vn'?c.vn:c.fr;
+    const wrongs=shuf([...vocab].filter(v=>v!==c)).slice(0,3).map(v=>examDir==='fr-vn'?v.vn:v.fr);
+    const choices=shuf([correct,...wrongs]);
+    document.getElementById('examCounter').textContent=`Question ${examIdx+1} / ${examDeck.length}`;
+    updProg(examIdx+1,examDeck.length);
+    document.getElementById('examQ').textContent=q;
+    if(examDir==='vn-fr'&&audOn)speak(c.vn);
+    const grid=document.getElementById('examChoices');
+    grid.innerHTML='';
+    choices.forEach(ch=>{
+        const btn=document.createElement('button');
+        btn.className='exam-choice';btn.textContent=ch;
+        btn.onclick=()=>answerExam(ch,correct,c,btn,grid);
+        grid.appendChild(btn);
+    });
+}
+function answerExam(chosen,correct,card,btn,grid){
+    document.querySelectorAll('.exam-choice').forEach(b=>{b.onclick=null;b.disabled=true;});
+    const ok=chosen===correct;
+    btn.classList.add(ok?'sel-ok':'sel-ko');
+    if(!ok)Array.from(grid.querySelectorAll('.exam-choice')).forEach(b=>{if(b.textContent===correct)b.classList.add('reveal-ok');});
+    examAnswers.push({card,chosen,correct,ok});
+    examIdx++;
+    setTimeout(()=>renderExamQ(),700);
+}
+function showExamResults(){
+    document.getElementById('examPlay').style.display='none';
+    document.getElementById('examResults').style.display='';
+    const total=examAnswers.length,ok=examAnswers.filter(a=>a.ok).length;
+    const pct=Math.round(ok/total*100);
+    const grade=pct>=90?'A — Excellent':pct>=75?'B — Bien':pct>=60?'C — Moyen':pct>=40?'D — À revoir':'F — À reprendre';
+    document.getElementById('examScoreBig').textContent=`${ok} / ${total}`;
+    document.getElementById('examGrade').textContent=`${pct}% · ${grade}`;
+    const wrong=examAnswers.filter(a=>!a.ok);
+    const list=document.getElementById('examWrongList');
+    if(!wrong.length){list.innerHTML='<div style="text-align:center;color:var(--ok);font-size:1rem;font-weight:800;padding:18px">Score parfait !</div>';}
+    else{
+        list.innerHTML=`<div class="exam-section-title">${wrong.length} erreur${wrong.length>1?'s':''} :</div>`;
+        wrong.forEach(a=>{list.innerHTML+=`<div class="exam-wrong-item"><div class="exam-wrong-q">${examDir==='fr-vn'?a.card.fr:a.card.vn}</div><div class="exam-wrong-correct">Correct : ${a.correct}</div><div class="exam-wrong-said">Ta réponse : ${a.chosen}</div></div>`;});
+    }
+}
+
 const hasSpeechReco=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
 // iOS PWA standalone mode : SpeechRecognition existe mais ne répond pas
 const isPWA=window.navigator.standalone===true;
 
 function renderPron(){
-    ['card','fb','secE','secQ','secP','secF','end'].forEach(id=>document.getElementById(id).style.display='none');
+    ['card','fb','secE','secQ','secP','secF','secExam','end'].forEach(id=>document.getElementById(id).style.display='none');
     document.getElementById('end').classList.remove('show');
     document.getElementById('secPron').style.display='';
     if(!deck.length)return;
