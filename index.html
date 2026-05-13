@@ -709,6 +709,27 @@
             <div><div class="stats-num muted" id="statNotStarted">0</div><div class="stats-lbl">Non commencés</div></div>
         </div>
         <div id="statBars"></div>
+        <div style="margin-top:18px;border-top:1px solid var(--s2);padding-top:16px">
+            <div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Sauvegarde progression</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+                <button class="btn btn-s" style="flex:1;font-size:.8rem" onclick="exportData()">
+                    Exporter <svg class="ico ico-sm"><use href="#i-layers"/></svg>
+                </button>
+                <button class="btn btn-o" style="flex:1;font-size:.8rem" onclick="showImport()">
+                    Importer <svg class="ico ico-sm"><use href="#i-refresh"/></svg>
+                </button>
+            </div>
+            <div id="importArea" style="display:none;margin-bottom:8px">
+                <textarea id="importJson" placeholder="Colle le JSON exporté ici..." style="width:100%;height:72px;background:var(--s2);border:1px solid var(--s2);border-radius:8px;color:var(--text);padding:8px 10px;font-size:.76rem;font-family:monospace;resize:none;outline:none;"></textarea>
+                <button class="btn btn-p btn-full" style="margin-top:5px;font-size:.82rem" onclick="importData()">
+                    <svg class="ico ico-sm"><use href="#i-check"/></svg> Restaurer
+                </button>
+            </div>
+            <div id="statMsg" style="display:none;font-size:.76rem;text-align:center;font-weight:700;padding:6px;border-radius:7px;margin-bottom:8px"></div>
+            <button class="btn btn-s btn-full" style="font-size:.79rem" onclick="forceSWUpdate()">
+                <svg class="ico ico-sm"><use href="#i-refresh"/></svg> Forcer la mise à jour de l'app
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1719,6 +1740,52 @@ function openStats(){
     document.getElementById('stats').classList.add('show');
 }
 function closeStats(){document.getElementById('stats').classList.remove('show');}
+function statMsg(txt,ok){
+    const m=document.getElementById('statMsg');
+    m.textContent=txt;m.style.background=ok?'rgba(34,197,94,.12)':'rgba(239,68,68,.1)';
+    m.style.color=ok?'var(--ok)':'var(--ko)';m.style.display='block';
+    setTimeout(()=>m.style.display='none',3500);
+}
+function exportData(){
+    const data={srs:lSRS()};
+    try{data.streak=JSON.parse(localStorage.getItem('viet_streak'));}catch{}
+    const json=JSON.stringify(data);
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(json)
+            .then(()=>statMsg('Copié dans le presse-papiers !',true))
+            .catch(()=>statMsg('Copie manuelle — voir console',false));
+    } else {
+        document.getElementById('importJson').value=json;
+        document.getElementById('importArea').style.display='block';
+        statMsg('Copie le texte dans la zone ci-dessous',true);
+    }
+}
+function showImport(){
+    const a=document.getElementById('importArea');
+    a.style.display=a.style.display==='none'?'block':'none';
+}
+function importData(){
+    try{
+        const raw=document.getElementById('importJson').value.trim();
+        if(!raw)return;
+        const data=JSON.parse(raw);
+        if(data.srs)sSRS(data.srs);
+        if(data.streak)try{localStorage.setItem('viet_streak',JSON.stringify(data.streak));}catch{}
+        updSRSStat();initStreak();
+        document.getElementById('importArea').style.display='none';
+        document.getElementById('importJson').value='';
+        statMsg('Progression restaurée !',true);
+        openStats();
+    }catch{statMsg('JSON invalide — réessaie',false);}
+}
+function forceSWUpdate(){
+    if('serviceWorker' in navigator){
+        navigator.serviceWorker.getRegistration().then(r=>{
+            if(r){r.update();statMsg('Mise à jour demandée — ferme et rouvre l\'app',true);}
+            else statMsg('Aucun Service Worker trouvé',false);
+        });
+    }
+}
 
 /* ── TIMER EXAMEN ── */
 function setExamTimer(btn,on,sec){
