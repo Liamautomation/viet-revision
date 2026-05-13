@@ -711,9 +711,12 @@
         <div id="statBars"></div>
         <div style="margin-top:18px;border-top:1px solid var(--s2);padding-top:16px">
             <div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Sauvegarde progression</div>
+            <button class="btn btn-p btn-full" style="font-size:.85rem;margin-bottom:8px" onclick="exportURL()">
+                <svg class="ico ico-sm"><use href="#i-link"/></svg> Copier lien → ouvrir dans Safari
+            </button>
             <div style="display:flex;gap:8px;margin-bottom:8px">
                 <button class="btn btn-s" style="flex:1;font-size:.8rem" onclick="exportData()">
-                    Exporter <svg class="ico ico-sm"><use href="#i-layers"/></svg>
+                    JSON <svg class="ico ico-sm"><use href="#i-layers"/></svg>
                 </button>
                 <button class="btn btn-o" style="flex:1;font-size:.8rem" onclick="showImport()">
                     Importer <svg class="ico ico-sm"><use href="#i-refresh"/></svg>
@@ -1747,6 +1750,34 @@ function statMsg(txt,ok){
     m.style.color=ok?'var(--ok)':'var(--ko)';m.style.display='block';
     setTimeout(()=>m.style.display='none',3500);
 }
+function b64enc(str){return btoa(unescape(encodeURIComponent(str)));}
+function b64dec(str){return decodeURIComponent(escape(atob(str)));}
+function exportURL(){
+    const d=lSRS(),compact={};
+    Object.entries(d).forEach(([k,v])=>{if(v.score>0)compact[k]=v.score;});
+    let streak=0;try{streak=JSON.parse(localStorage.getItem('viet_streak')||'{}').n||0;}catch{}
+    const encoded=b64enc(JSON.stringify({s:compact,k:streak}));
+    const url=location.origin+location.pathname+'#import='+encoded;
+    if(navigator.clipboard){
+        navigator.clipboard.writeText(url)
+            .then(()=>statMsg('Lien copié ! Colle-le dans Safari pour importer.',true))
+            .catch(()=>{document.getElementById('importJson').value=url;document.getElementById('importArea').style.display='block';statMsg('Copie le lien dans la zone ci-dessous',true);});
+    }
+}
+function checkURLImport(){
+    const hash=location.hash;
+    if(!hash.startsWith('#import='))return;
+    try{
+        const payload=JSON.parse(b64dec(hash.slice(8)));
+        if(payload.s){
+            const d={};Object.entries(payload.s).forEach(([k,sc])=>{d[k]={score:sc};});sSRS(d);
+        }
+        if(payload.k){const today=new Date().toDateString();try{localStorage.setItem('viet_streak',JSON.stringify({n:payload.k,d:today}));}catch{}}
+        history.replaceState(null,'',location.pathname);
+        updSRSStat();initStreak();
+        setTimeout(()=>{openStats();statMsg('Progression importée depuis le lien !',true);},400);
+    }catch{history.replaceState(null,'',location.pathname);}
+}
 function exportData(){
     const data={srs:lSRS()};
     try{data.streak=JSON.parse(localStorage.getItem('viet_streak'));}catch{}
@@ -1861,6 +1892,7 @@ initAudio();initStreak();initCatCounts();buildGuide();updSRSStat();
 deck=buildDeck();showCard();
 initSwipe();
 buildKB('vRow2','tRow2','phraseAns');
+checkURLImport();
 document.getElementById('stats').addEventListener('click',e=>{if(e.target===document.getElementById('stats'))closeStats();});
 
 if('serviceWorker' in navigator){
