@@ -384,6 +384,9 @@
         <button class="seg-btn" data-ex="paires" onclick="setEx(this)">
             <svg class="ico ico-sm"><use href="#i-link"/></svg> Paires
         </button>
+        <button class="seg-btn" data-ex="phrases" onclick="setEx(this)">
+            <svg class="ico ico-sm"><use href="#i-edit"/></svg> Phrases
+        </button>
     </div>
 
     <!-- SRS toujours actif -->
@@ -537,6 +540,40 @@
     <div id="secP" style="display:none">
         <div class="p-hdr" id="pHdr"></div>
         <div class="p-grid" id="pGrid"></div>
+    </div>
+
+    <!-- ── Section Phrases ── -->
+    <div id="secPhrase" style="display:none">
+        <div class="card" style="margin-bottom:11px;min-height:100px">
+            <span class="card-tag" id="phraseTag">1 / 39</span>
+            <div style="font-size:.66rem;color:var(--muted);margin-bottom:7px" id="phraseHint"></div>
+            <div class="card-q" id="phraseQ" style="font-size:1.35rem;line-height:1.45;text-align:center">—</div>
+        </div>
+        <div class="fb" id="phraseFb"></div>
+        <input type="text" class="ans-input" id="phraseAns" placeholder="Construis la phrase..."
+               autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <div class="kb" id="kb2" style="display:none">
+            <div class="kb-title">Voyelle → ton → inséré</div>
+            <div class="v-row" id="vRow2"></div>
+            <div class="t-row" id="tRow2"><span class="t-lbl">Tons :</span></div>
+            <div class="ex-row">
+                <button class="vb" onclick="insTo('phraseAns','đ')">đ</button>
+                <button class="vb" onclick="bspIn('phraseAns')">⌫</button>
+                <button class="vb" onclick="insTo('phraseAns',' ')" style="min-width:52px">espace</button>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-s" style="flex:none;min-width:44px;padding:10px" onclick="speakPhrase()">
+                <svg class="ico"><use href="#i-vol"/></svg>
+            </button>
+            <button class="btn btn-s" onclick="skipPhrase()">
+                Voir <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+            <button class="btn btn-p" onclick="validatePhrase()">
+                <span id="phrasValTxt">Valider</span>
+                <svg class="ico" id="phrasValIco"><use href="#i-check"/></svg>
+            </button>
+        </div>
     </div>
 
     <!-- ── Section Prononciation ── -->
@@ -843,6 +880,12 @@ const vocab=[
     {fr:"assez / suffisant",vn:"đủ",cat:"quantité"},
     {fr:"encore / en plus",vn:"thêm",cat:"quantité"},
     {fr:"tout / tous",vn:"tất cả",cat:"quantité"},
+    {fr:"trop / très (après le mot)",vn:"quá",cat:"quantité"},
+    {fr:"très / vraiment (après le mot)",vn:"lắm",cat:"quantité"},
+    // Couleurs (suite)
+    {fr:"violet",vn:"tím",cat:"couleurs"},
+    {fr:"gris",vn:"xám",cat:"couleurs"},
+    {fr:"marron",vn:"nâu",cat:"couleurs"},
     // Adjectifs essentiels
     {fr:"bon / bien",vn:"tốt",cat:"adjectifs"},
     {fr:"délicieux",vn:"ngon",cat:"adjectifs"},
@@ -961,6 +1004,49 @@ const vocab=[
     {fr:"J'aime le café au lait glacé",vn:"Em thích cà phê sữa đá",cat:"phrases"},
 ];
 
+/* ── PHRASES À CONSTRUIRE ── */
+const sentences=[
+    {fr:"Je m'appelle Liam.",vn:"Tôi tên là Liam."},
+    {fr:"Je suis français.",vn:"Tôi là người Pháp."},
+    {fr:"J'apprends le vietnamien.",vn:"Tôi đang học tiếng Việt."},
+    {fr:"Je suis ravi de te rencontrer.",vn:"Rất vui được gặp bạn."},
+    {fr:"Tu t'appelles comment ?",vn:"Bạn tên là gì ?"},
+    {fr:"Tu vas où ?",vn:"Bạn đi đâu ?"},
+    {fr:"Tu viens d'où ?",vn:"Bạn đến từ đâu ?"},
+    {fr:"Tu veux boire quoi ?",vn:"Bạn muốn uống gì ?"},
+    {fr:"Qu'est-ce que tu fais ?",vn:"Bạn làm gì ?"},
+    {fr:"C'est quoi ça ?",vn:"Cái này là cái gì ?"},
+    {fr:"Quel âge as-tu ?",vn:"Bạn bao nhiêu tuổi ?"},
+    {fr:"Combien ça coûte ?",vn:"Bao nhiêu tiền ?"},
+    {fr:"Où sont les toilettes ?",vn:"Nhà vệ sinh ở đâu ?"},
+    {fr:"Donnez-moi un café au lait glacé.",vn:"Cho em một ly cà phê sữa đá."},
+    {fr:"Donnez-moi un café au lait chaud.",vn:"Cho em một ly cà phê sữa nóng."},
+    {fr:"Donnez-moi une portion de bánh xèo.",vn:"Cho em một phần bánh xèo."},
+    {fr:"L'addition s'il vous plaît.",vn:"Làm ơn, tính tiền."},
+    {fr:"Bon appétit !",vn:"Chúc ngon miệng !"},
+    {fr:"Je voudrais ceci.",vn:"Cho tôi cái này nhé."},
+    {fr:"Je veux manger du riz.",vn:"Tôi muốn ăn cơm."},
+    {fr:"J'aime le café au lait glacé.",vn:"Em thích cà phê sữa đá."},
+    {fr:"Le poisson est délicieux !",vn:"Cá ngon !"},
+    {fr:"Le café est chaud.",vn:"Cà phê nóng."},
+    {fr:"J'ai besoin d'eau.",vn:"Tôi cần nước."},
+    {fr:"J'ai faim.",vn:"Tôi đói."},
+    {fr:"J'ai soif.",vn:"Tôi khát."},
+    {fr:"Je suis fatigué.",vn:"Tôi mệt."},
+    {fr:"Je suis content !",vn:"Tôi vui !"},
+    {fr:"Je suis triste.",vn:"Tôi buồn."},
+    {fr:"Arrêtez-vous ici.",vn:"Dừng ở đây."},
+    {fr:"Je veux aller à l'hôtel.",vn:"Tôi muốn đi đến khách sạn."},
+    {fr:"On arrive dans combien de temps ?",vn:"Bao lâu đến ?"},
+    {fr:"Je ne comprends pas.",vn:"Tôi không hiểu."},
+    {fr:"Merci beaucoup !",vn:"Cảm ơn nhiều !"},
+    {fr:"Je vais rentrer à la maison.",vn:"Tôi sẽ về nhà."},
+    {fr:"Demain je vais à la plage.",vn:"Ngày mai tôi đi biển."},
+    {fr:"Aujourd'hui c'est lundi.",vn:"Hôm nay là thứ hai."},
+    {fr:"C'est trop cher !",vn:"Đắt quá !"},
+    {fr:"C'est pas cher du tout.",vn:"Rẻ lắm."},
+];
+
 /* ── ÉTAT GLOBAL ── */
 let mainTab='exercices',mode='fr-vn',exT='ecriture',cat='all',srsMode=true,audRate=0.75;
 let deck=[],idx=0,okN=0,koN=0,answered=false,sessErr=new Set();
@@ -968,6 +1054,7 @@ let pBatch=[],pMat=new Set(),sL=-1,sR=-1;
 let flashIdx=0,flashFlipped=false,flashSearch='';
 let pronIdx=0;
 let examTimerOn=false,examTimerSec=20,examTimerInterval=null;
+let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
 const BATCH=4;
 
 /* ── AUDIO ── */
@@ -1070,10 +1157,12 @@ function setTab(btn){
 /* ── RESET UNIFIÉ ── */
 function reset(){
     deck=buildDeck();
-    flashIdx=0;flashFlipped=false;
+    flashIdx=0;flashFlipped=false;flashSearch='';
+    const si=document.getElementById('searchIn');if(si)si.value='';
     pronIdx=0;
     if(mainTab==='fiches')renderFlash();
     else if(mainTab==='prononciation')renderPron();
+    else if(mainTab==='exercices'&&exT==='phrases'){phraseDeck=shuf([...sentences]);phraseIdx=0;phraseAnswered=false;renderPhrase();}
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
 function restart(){reset();}
@@ -1082,7 +1171,11 @@ function restart(){reset();}
 function setMode(btn){mode=btn.dataset.mode;document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b===btn));reset();}
 function setEx(btn){exT=btn.dataset.ex;document.querySelectorAll('[data-ex]').forEach(b=>b.classList.toggle('active',b===btn));reset();}
 function setCat(btn){cat=btn.dataset.cat;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b===btn));reset();}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&mainTab==='exercices'&&exT==='ecriture')validate();});
+document.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'||mainTab!=='exercices')return;
+    if(exT==='ecriture')validate();
+    else if(exT==='phrases')validatePhrase();
+});
 
 /* ── PROGRESS ── */
 function updProg(cur,tot){
@@ -1102,21 +1195,24 @@ const TONES={
     'u':['u','ú','ù','ủ','ũ','ụ'],'ư':['ư','ứ','ừ','ử','ữ','ự'],'y':['y','ý','ỳ','ỷ','ỹ','ỵ'],
 };
 const TNAMES=['ngang','sắc /','huyền \\','hỏi ?','ngã ~','nặng .'];
-(function(){
-    const row=document.getElementById('vRow');
+function insTo(id,ch){const i=document.getElementById(id),s=i.selectionStart,e=i.selectionEnd;i.value=i.value.substring(0,s)+ch+i.value.substring(e);i.setSelectionRange(s+ch.length,s+ch.length);i.focus();}
+function bspIn(id){const i=document.getElementById(id),s=i.selectionStart;if(s>0){i.value=i.value.substring(0,s-1)+i.value.substring(s);i.setSelectionRange(s-1,s-1);}i.focus();}
+function ins(ch){insTo('ans',ch);}
+function bsp(){bspIn('ans');}
+function buildKB(vRowId,tRowId,targetId){
+    const row=document.getElementById(vRowId);
     Object.keys(TONES).forEach(v=>{
         const b=document.createElement('button');b.className='vb';b.textContent=v;
         b.onclick=()=>{
-            document.querySelectorAll('#vRow .vb').forEach(x=>x.classList.remove('sel'));
+            row.querySelectorAll('.vb').forEach(x=>x.classList.remove('sel'));
             b.classList.add('sel');
-            const r=document.getElementById('tRow');r.className='t-row show';
+            const r=document.getElementById(tRowId);r.className='t-row show';
             r.innerHTML='<span class="t-lbl">Tons :</span>';
-            TONES[v].forEach((ch,i)=>{const t=document.createElement('button');t.className='tb';t.title=TNAMES[i];t.textContent=ch;t.onclick=()=>ins(ch);r.appendChild(t);});
+            TONES[v].forEach((ch,i)=>{const t=document.createElement('button');t.className='tb';t.title=TNAMES[i];t.textContent=ch;t.onclick=()=>insTo(targetId,ch);r.appendChild(t);});
         };row.appendChild(b);
     });
-})();
-function ins(ch){const i=document.getElementById('ans'),s=i.selectionStart,e=i.selectionEnd;i.value=i.value.substring(0,s)+ch+i.value.substring(e);i.setSelectionRange(s+ch.length,s+ch.length);i.focus();}
-function bsp(){const i=document.getElementById('ans'),s=i.selectionStart;if(s>0){i.value=i.value.substring(0,s-1)+i.value.substring(s);i.setSelectionRange(s-1,s-1);}i.focus();}
+}
+buildKB('vRow','tRow','ans');
 
 /* ══════════════════════════════
    ── FICHES ──
@@ -1189,10 +1285,12 @@ function initSwipe(){
    ── EXERCICES ──
 ══════════════════════════════ */
 function showCard(){
+    if(exT==='phrases'){renderPhrase();return;}
     document.getElementById('end').classList.remove('show');document.getElementById('end').style.display='none';
     document.getElementById('secF').style.display='none';
     document.getElementById('secPron').style.display='none';
     document.getElementById('secExam').style.display='none';
+    document.getElementById('secPhrase').style.display='none';
     ['card','fb','secE','secQ','secP'].forEach(id=>document.getElementById(id).style.removeProperty('display'));
     if(idx>=deck.length&&exT!=='paires'){showEnd();return;}
     const isE=exT==='ecriture',isQ=exT==='qcm',isP=exT==='paires';
@@ -1539,6 +1637,69 @@ function showPronResult(alts,target){
     document.getElementById('pronResult').style.display='';
 }
 
+/* ══════════════════════════════
+   ── CONSTRUCTION DE PHRASES ──
+══════════════════════════════ */
+function normPhrase(s){return s.toLowerCase().trim().replace(/[!?.,]/g,'').replace(/\s+/g,' ').trim();}
+function speakPhrase(){if(phraseDeck[phraseIdx])speak(phraseDeck[phraseIdx].vn);}
+function renderPhrase(){
+    ['card','fb','secE','secQ','secP','secF','secPron','secExam','end'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('end').classList.remove('show');
+    document.getElementById('scoresRow').style.display='none';
+    document.getElementById('secPhrase').style.display='';
+    if(!phraseDeck.length)phraseDeck=shuf([...sentences]);
+    if(phraseIdx>=phraseDeck.length)phraseIdx=0;
+    const s=phraseDeck[phraseIdx];
+    const q=mode==='fr-vn'?s.fr:s.vn;
+    const ans=mode==='fr-vn'?s.vn:s.fr;
+    const nw=ans.split(/\s+/).length;
+    document.getElementById('phraseQ').textContent=q;
+    document.getElementById('phraseHint').textContent=nw+' mot'+(nw>1?'s':'');
+    document.getElementById('phraseAns').value='';
+    document.getElementById('phraseAns').className='ans-input';
+    document.getElementById('phraseFb').className='fb';
+    document.getElementById('phrasValTxt').textContent='Valider';
+    document.getElementById('phrasValIco').querySelector('use').setAttribute('href','#i-check');
+    document.getElementById('phraseTag').textContent=(phraseIdx+1)+' / '+phraseDeck.length;
+    phraseAnswered=false;
+    updProg(phraseIdx,phraseDeck.length);
+    const showKb=mode==='fr-vn';
+    document.getElementById('kb2').style.display=showKb?'block':'none';
+    if(showKb){document.getElementById('tRow2').className='t-row';document.querySelectorAll('#vRow2 .vb').forEach(b=>b.classList.remove('sel'));}
+    if(mode==='vn-fr')setTimeout(()=>speak(s.vn),200);
+    else setTimeout(()=>document.getElementById('phraseAns').focus(),80);
+}
+function validatePhrase(){
+    if(phraseAnswered){phraseIdx++;renderPhrase();return;}
+    const inp=document.getElementById('phraseAns'),user=normPhrase(inp.value);
+    if(!user)return;
+    const s=phraseDeck[phraseIdx];
+    const cor=mode==='fr-vn'?s.vn:s.fr;
+    const ok=user===normPhrase(cor);
+    phraseAnswered=true;
+    const fb=document.getElementById('phraseFb');
+    if(ok){
+        inp.className='ans-input ok';fb.className='fb ok';fb.textContent='Parfait !';
+    } else {
+        inp.className='ans-input ko';fb.className='fb ko';fb.innerHTML='Correct : <strong>'+cor+'</strong>';
+    }
+    document.getElementById('phrasValTxt').textContent='Suivant';
+    document.getElementById('phrasValIco').querySelector('use').setAttribute('href','#i-arrow-r');
+    setTimeout(()=>speak(s.vn),400);
+}
+function skipPhrase(){
+    if(phraseAnswered){phraseIdx++;renderPhrase();return;}
+    const s=phraseDeck[phraseIdx];
+    const cor=mode==='fr-vn'?s.vn:s.fr;
+    const fb=document.getElementById('phraseFb');
+    fb.className='fb ko';fb.innerHTML='Réponse : <strong>'+cor+'</strong>';
+    document.getElementById('phraseAns').className='ans-input ko';
+    phraseAnswered=true;
+    document.getElementById('phrasValTxt').textContent='Suivant';
+    document.getElementById('phrasValIco').querySelector('use').setAttribute('href','#i-arrow-r');
+    setTimeout(()=>speak(s.vn),300);
+}
+
 /* ── STATS ── */
 function openStats(){
     const d=lSRS();
@@ -1631,6 +1792,7 @@ document.getElementById('wc').textContent=vocab.length;
 initAudio();initStreak();initCatCounts();buildGuide();updSRSStat();
 deck=buildDeck();showCard();
 initSwipe();
+buildKB('vRow2','tRow2','phraseAns');
 document.getElementById('stats').addEventListener('click',e=>{if(e.target===document.getElementById('stats'))closeStats();});
 
 if('serviceWorker' in navigator){
