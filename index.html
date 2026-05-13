@@ -1340,11 +1340,12 @@ function renderE(){
     if(mode==='vn-fr')setTimeout(()=>speak(c.vn),200);
     else setTimeout(()=>document.getElementById('ans').focus(),80);
 }
+function normIn(s){return s.normalize('NFC').toLowerCase().replace(/['']/g,"'").replace(/\s+/g,' ').trim();}
 function validate(){
     if(answered){idx++;showCard();return;}
-    const inp=document.getElementById('ans'),user=inp.value.trim().toLowerCase();
+    const inp=document.getElementById('ans'),user=normIn(inp.value);
     if(!user)return;
-    const c=deck[idx],cor=A(c).trim().toLowerCase(),ok=user===cor;
+    const c=deck[idx],cor=normIn(A(c)),ok=user===cor;
     answered=true;
     if(ok){okN++;inp.className='ans-input ok';const fb=document.getElementById('fb');fb.className='fb ok';fb.textContent='Correct !';}
     else{koN++;inp.className='ans-input ko';const fb=document.getElementById('fb');fb.className='fb ko';fb.innerHTML='Raté — <strong>'+A(c)+'</strong>';sessErr.add(wid(c));}
@@ -1508,7 +1509,7 @@ function renderExamQ(){
 function answerExam(chosen,correct,card,btn,grid){
     stopExamTimer();
     document.querySelectorAll('.exam-choice').forEach(b=>{b.onclick=null;b.disabled=true;});
-    const ok=chosen===correct;
+    const ok=normIn(chosen)===normIn(correct);
     btn.classList.add(ok?'sel-ok':'sel-ko');
     if(!ok)Array.from(grid.querySelectorAll('.exam-choice')).forEach(b=>{if(b.textContent===correct)b.classList.add('reveal-ok');});
     examAnswers.push({card,chosen,correct,ok});
@@ -1661,7 +1662,7 @@ function showPronResult(alts,target){
 /* ══════════════════════════════
    ── CONSTRUCTION DE PHRASES ──
 ══════════════════════════════ */
-function normPhrase(s){return s.toLowerCase().trim().replace(/[!?.,]/g,'').replace(/\s+/g,' ').trim();}
+function normPhrase(s){return s.normalize('NFC').toLowerCase().replace(/['']/g,"'").replace(/[!?.,]/g,'').replace(/\s+/g,' ').trim();}
 function speakPhrase(){if(phraseDeck[phraseIdx])speak(phraseDeck[phraseIdx].vn);}
 function renderPhrase(){
     ['card','fb','secE','secQ','secP','secF','secPron','secExam','end'].forEach(id=>document.getElementById(id).style.display='none');
