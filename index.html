@@ -7,6 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <title>Révision Viet</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" async></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
         :root{
@@ -710,10 +711,18 @@
         </div>
         <div id="statBars"></div>
         <div style="margin-top:18px;border-top:1px solid var(--s2);padding-top:16px">
-            <div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Sauvegarde progression</div>
-            <button class="btn btn-p btn-full" style="font-size:.85rem;margin-bottom:8px" onclick="exportURL()">
-                <svg class="ico ico-sm"><use href="#i-link"/></svg> Copier lien → ouvrir dans Safari
+            <div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Sync multi-appareils</div>
+            <button class="btn btn-p btn-full" style="font-size:.85rem;margin-bottom:8px" onclick="syncProg()">
+                <svg class="ico ico-sm"><use href="#i-link"/></svg> Envoyer ma progression
             </button>
+            <div id="syncBox" style="display:none;background:var(--s2);border-radius:10px;padding:12px;margin-bottom:8px;text-align:center">
+                <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px">Scanne depuis l'autre appareil ou copie le lien</div>
+                <div id="qrDiv" style="display:flex;justify-content:center;margin-bottom:8px;min-height:120px;align-items:center"></div>
+                <div style="display:flex;gap:6px">
+                    <input type="text" id="syncUrlText" readonly style="flex:1;background:var(--bg);border:1px solid var(--s2);border-radius:7px;color:var(--muted);padding:6px 8px;font-size:.65rem;font-family:monospace;outline:none;min-width:0;">
+                    <button class="btn btn-s" style="font-size:.8rem;padding:6px 10px;flex-shrink:0" onclick="copySyncUrl()">Copier</button>
+                </div>
+            </div>
             <div style="display:flex;gap:8px;margin-bottom:8px">
                 <button class="btn btn-s" style="flex:1;font-size:.8rem" onclick="exportData()">
                     JSON <svg class="ico ico-sm"><use href="#i-layers"/></svg>
@@ -1752,17 +1761,50 @@ function statMsg(txt,ok){
 }
 function b64enc(str){return btoa(unescape(encodeURIComponent(str)));}
 function b64dec(str){return decodeURIComponent(escape(atob(str)));}
-function exportURL(){
+function buildSyncURL(){
     const d=lSRS(),compact={};
     Object.entries(d).forEach(([k,v])=>{if(v.score>0)compact[k]=v.score;});
     let streak=0;try{streak=JSON.parse(localStorage.getItem('viet_streak')||'{}').n||0;}catch{}
-    const encoded=b64enc(JSON.stringify({s:compact,k:streak}));
-    const url=location.origin+location.pathname+'#import='+encoded;
-    if(navigator.clipboard){
-        navigator.clipboard.writeText(url)
-            .then(()=>statMsg('Lien copié ! Colle-le dans Safari pour importer.',true))
-            .catch(()=>{document.getElementById('importJson').value=url;document.getElementById('importArea').style.display='block';statMsg('Copie le lien dans la zone ci-dessous',true);});
+    return location.origin+location.pathname+'#import='+b64enc(JSON.stringify({s:compact,k:streak}));
+}
+function exportURL(){syncProg();}
+function syncProg(){
+    const url=buildSyncURL();
+    // Mobile : share sheet natif (iOS/Android)
+    if(navigator.share){
+        navigator.share({title:'Révision Viet — Progression',url}).catch(()=>{});
+        return;
     }
+    // Desktop : QR code + copie
+    const box=document.getElementById('syncBox');
+    const open=box.style.display==='none';
+    box.style.display=open?'block':'none';
+    if(!open)return;
+    document.getElementById('syncUrlText').value=url;
+    const qrDiv=document.getElementById('qrDiv');
+    qrDiv.innerHTML='';
+    if(typeof qrcode!=='undefined'){
+        try{
+            const qr=qrcode(0,'M');
+            qr.addData(url);
+            qr.make();
+            const img=qr.createImgTag(3,6);
+            qrDiv.innerHTML=img;
+            qrDiv.querySelector('img').style.cssText='border-radius:8px;background:white;padding:6px;';
+        }catch(e){
+            qrDiv.innerHTML='<span style="font-size:.72rem;color:var(--muted)">QR indisponible — copie le lien ci-dessous</span>';
+        }
+    } else {
+        qrDiv.innerHTML='<span style="font-size:.72rem;color:var(--muted)">Copie le lien ci-dessous et ouvre-le sur l\'autre appareil</span>';
+    }
+    navigator.clipboard?.writeText(url).then(()=>statMsg('Lien copié + QR affiché !',true)).catch(()=>{});
+}
+function copySyncUrl(){
+    const url=document.getElementById('syncUrlText').value;
+    if(!url)return;
+    navigator.clipboard?.writeText(url)
+        .then(()=>statMsg('Lien copié !',true))
+        .catch(()=>statMsg('Sélectionne et copie le lien manuellement',true));
 }
 function checkURLImport(){
     const hash=location.hash;
