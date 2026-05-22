@@ -1483,7 +1483,7 @@ function renderE(){
     if(mode==='vn-fr')setTimeout(()=>speak(c.vn),200);
     else setTimeout(()=>document.getElementById('ans').focus(),80);
 }
-function normIn(s){return s.normalize('NFC').toLowerCase().replace(/['']/g,"'").replace(/\s+/g,' ').trim();}
+function normIn(s){return s.normalize('NFC').toLowerCase().replace(/['']/g,"'").replace(/[!?.,…]/g,'').replace(/\s+/g,' ').trim();}
 function validate(){
     if(answered){idx++;showCard();return;}
     const inp=document.getElementById('ans'),user=normIn(inp.value);
