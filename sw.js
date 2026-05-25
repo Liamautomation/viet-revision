@@ -1,4 +1,4 @@
-const CACHE = 'viet-v23';
+const CACHE = 'viet-v24';
 const FILES = [
     './index.html', './manifest.json', './icon.svg',
     'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'
