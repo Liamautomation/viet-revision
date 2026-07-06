@@ -372,6 +372,9 @@
         <button class="seg-btn" data-tab="tons" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-vol"/></svg> Tons
         </button>
+        <button class="seg-btn" data-tab="patterns" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-grid"/></svg> Motifs
+        </button>
         <button class="seg-btn" data-tab="examen" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-exam"/></svg> Examen
         </button>
@@ -662,6 +665,35 @@
             </button>
         </div>
         <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">Sud : hỏi ≈ ngã à l'oral · 6 marques écrites</div>
+    </div>
+
+    <!-- ── Section Motifs ── -->
+    <div id="secPat" style="display:none">
+        <div class="pron-card">
+            <span class="pron-pos" id="patStat"></span>
+            <div class="pron-label">Recompose la phrase en vietnamien</div>
+            <div class="pron-word" id="patFrameVn" style="font-size:1.45rem">Tôi muốn •••</div>
+            <div class="pron-diff" id="patFrameFr" style="margin-top:2px"></div>
+            <div id="patCue" style="margin-top:14px;font-size:1.15rem;font-weight:800;color:var(--p)"></div>
+            <button class="btn-listen" onclick="patListen()">
+                <svg class="ico ico-sm"><use href="#i-vol"/></svg> Écouter
+            </button>
+        </div>
+        <div class="pron-result" id="patReveal" style="display:none">
+            <div id="patFullVn" style="font-size:1.6rem;font-weight:800;color:var(--ok)"></div>
+            <div class="pron-diff" id="patFullFr" style="margin-top:6px"></div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-s" onclick="patReveal()">
+                <svg class="ico ico-lg"><use href="#i-check"/></svg><span>Révéler</span>
+            </button>
+            <button class="btn btn-p" onclick="patNext()">
+                Suivant <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+        </div>
+        <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">
+            Écoute → dis la phrase à voix haute → révèle · <span id="patSlotPos"></span>
+        </div>
     </div>
 
     <!-- ── Section Examen ── -->
@@ -1434,6 +1466,7 @@ let pBatch=[],pMat=new Set(),sL=-1,sR=-1;
 let flashIdx=0,flashFlipped=false,flashSearch='';
 let pronIdx=0;
 let toneFam=0,toneTarget=null,toneAnswered=false,toneStat={ok:0,tot:0};
+let patIdx=0,patSlot=0,patAnswered=false;
 let examTimerOn=false,examTimerSec=20,examTimerInterval=null;
 let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
 const BATCH=4;
@@ -1524,15 +1557,17 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons';
-    document.getElementById('modeRow').style.display=(isPron||isExam||isTons)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
     document.getElementById('secTons').style.display=isTons?'':'none';
+    document.getElementById('secPat').style.display=isPat?'':'none';
     if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
     else if(isTons)renderTons();
+    else if(isPat)renderPat();
     else if(isExam)renderExamSetup();
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -1546,6 +1581,7 @@ function reset(){
     if(mainTab==='fiches')renderFlash();
     else if(mainTab==='prononciation')renderPron();
     else if(mainTab==='tons')renderTons();
+    else if(mainTab==='patterns'){patIdx=0;patSlot=0;renderPat();}
     else if(mainTab==='exercices'&&exT==='phrases'){phraseDeck=shuf([...sentences]);phraseIdx=0;phraseAnswered=false;renderPhrase();}
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -2031,6 +2067,88 @@ const TONESETS=[
   {base:'ba',forms:[{m:'ngang',w:'ba',fr:'trois / papa',en:'three / dad'},{m:'sắc',w:'bá',fr:'embrasser (Sud)',en:'to hug (South)'},{m:'huyền',w:'bà',fr:'grand-mère / madame',en:'grandma'},{m:'hỏi',w:'bả',fr:'appât',en:'bait'},{m:'ngã',w:'bã',fr:'résidu / marc',en:'dregs'},{m:'nặng',w:'bạ',fr:'au hasard',en:'randomly'}]},
   {base:'bo',forms:[{m:'ngang',w:'bo',fr:'pourboire (fam.)',en:'tip'},{m:'sắc',w:'bó',fr:'botte / fagot',en:'bundle'},{m:'huyền',w:'bò',fr:'vache / ramper',en:'cow / to crawl'},{m:'hỏi',w:'bỏ',fr:'abandonner / laisser',en:'to quit'},{m:'ngã',w:'bõ',fr:'ça vaut la peine',en:'worth it'},{m:'nặng',w:'bọ',fr:'insecte',en:'bug'}]}
 ];
+
+/* ══════════════════════════════
+   ── MOTIFS (drill substitution) ──
+   Frame fixe + slot qui change → recombinaison orale (plan M2)
+══════════════════════════════ */
+const PATTERNS=[
+ {fr:"Je veux ___",vn:'Tôi muốn ___',slots:[{fr:"manger",vn:'ăn'},{fr:"boire",vn:'uống'},{fr:"partir",vn:'đi'},{fr:"me reposer",vn:'nghỉ'},{fr:"rentrer",vn:'về nhà'}]},
+ {fr:"J'aime ___",vn:'Tôi thích ___',slots:[{fr:"le café",vn:'cà phê'},{fr:"le phở",vn:'phở'},{fr:"aller à la mer",vn:'đi biển'},{fr:"discuter",vn:'nói chuyện'}]},
+ {fr:"Je ne ___ pas",vn:'Tôi không ___',slots:[{fr:"comprends",vn:'hiểu'},{fr:"sais",vn:'biết'},{fr:"aime",vn:'thích'},{fr:"veux",vn:'muốn'}]},
+ {fr:"Donnez-moi ___",vn:'Cho tôi ___',slots:[{fr:"un café",vn:'một cà phê'},{fr:"ceci",vn:'cái này'},{fr:"deux",vn:'hai cái'},{fr:"l'addition",vn:'tính tiền'}]},
+ {fr:"J'ai besoin de ___",vn:'Tôi cần ___',slots:[{fr:"aide",vn:'giúp'},{fr:"eau",vn:'nước'},{fr:"repos",vn:'nghỉ'},{fr:"temps",vn:'thời gian'}]},
+ {fr:"Où est ___ ?",vn:'___ ở đâu?',slots:[{fr:"les toilettes",vn:'Nhà vệ sinh'},{fr:"l'hôtel",vn:'Khách sạn'},{fr:"la gare routière",vn:'Bến xe'},{fr:"le marché",vn:'Chợ'}]},
+ {fr:"Je suis en train de ___",vn:'Tôi đang ___',slots:[{fr:"manger",vn:'ăn'},{fr:"travailler",vn:'làm việc'},{fr:"étudier",vn:'học'},{fr:"marcher",vn:'đi'}]},
+ {fr:"Je vais bientôt ___",vn:'Tôi sẽ ___',slots:[{fr:"rentrer",vn:'về'},{fr:"partir",vn:'đi'},{fr:"appeler",vn:'gọi'},{fr:"revenir",vn:'quay lại'}]},
+ {fr:"J'ai déjà ___",vn:'Tôi ___ rồi',slots:[{fr:"mangé",vn:'ăn'},{fr:"compris",vn:'hiểu'},{fr:"fini",vn:'làm xong'},{fr:"payé",vn:'trả tiền'}]},
+ {fr:"Combien de ___ ?",vn:'Bao nhiêu ___?',slots:[{fr:"ça coûte",vn:'tiền'},{fr:"personnes",vn:'người'},{fr:"pièces",vn:'cái'},{fr:"ans (âge)",vn:'tuổi'}]},
+ {fr:"Y a-t-il ___ ?",vn:'Có ___ không?',slots:[{fr:"du wifi",vn:'wifi'},{fr:"une chambre",vn:'phòng'},{fr:"de la place",vn:'chỗ'},{fr:"du café",vn:'cà phê'}]},
+ {fr:"As-tu ___ ?",vn:'Bạn có ___ không?',slots:[{fr:"du temps libre",vn:'rảnh'},{fr:"la forme",vn:'khỏe'},{fr:"de l'argent",vn:'tiền'},{fr:"faim",vn:'đói'}]},
+ {fr:"Je suis ___",vn:'Tôi là ___',slots:[{fr:"français",vn:'người Pháp'},{fr:"étudiant",vn:'sinh viên'},{fr:"professeur",vn:'giáo viên'},{fr:"débutant",vn:'người mới'}]},
+ {fr:"Ceci est ___",vn:'Cái này ___',slots:[{fr:"cher (Sud)",vn:'mắc'},{fr:"bon marché",vn:'rẻ'},{fr:"beau",vn:'đẹp'},{fr:"délicieux",vn:'ngon'}]},
+ {fr:"S'il vous plaît, ___",vn:'Làm ơn ___',slots:[{fr:"parlez lentement",vn:'nói chậm'},{fr:"répétez",vn:'lặp lại'},{fr:"attendez",vn:'chờ'},{fr:"aidez-moi",vn:'giúp tôi'}]},
+ {fr:"Je veux aller ___",vn:'Tôi muốn đi ___',slots:[{fr:"au marché",vn:'chợ'},{fr:"à la mer",vn:'biển'},{fr:"à l'aéroport",vn:'sân bay'},{fr:"à l'hôtel",vn:'khách sạn'}]},
+ {fr:"Je veux ___ ceci",vn:'Tôi muốn ___ cái này',slots:[{fr:"acheter",vn:'mua'},{fr:"voir",vn:'xem'},{fr:"essayer",vn:'thử'},{fr:"échanger",vn:'đổi'}]},
+ {fr:"C'est trop ___ !",vn:'___ quá!',slots:[{fr:"cher",vn:'Mắc'},{fr:"bon",vn:'Ngon'},{fr:"beau",vn:'Đẹp'},{fr:"chaud",vn:'Nóng'}]},
+ {fr:"J'y vais en ___",vn:'Tôi đi bằng ___',slots:[{fr:"moto",vn:'xe máy'},{fr:"taxi",vn:'taxi'},{fr:"bus",vn:'xe buýt'},{fr:"avion",vn:'máy bay'}]},
+ {fr:"Je loge ___",vn:'Tôi ở ___',slots:[{fr:"à l'hôtel",vn:'khách sạn'},{fr:"à la maison",vn:'nhà'},{fr:"à Saïgon",vn:'Sài Gòn'},{fr:"ici",vn:'đây'}]},
+ {fr:"Je veux boire ___",vn:'Tôi muốn uống ___',slots:[{fr:"un café au lait glacé",vn:'cà phê sữa đá'},{fr:"de l'eau",vn:'nước'},{fr:"une bière",vn:'bia'},{fr:"du thé",vn:'trà'}]},
+ {fr:"Je préfère ___",vn:'Tôi thích ___ hơn',slots:[{fr:"ceci",vn:'cái này'},{fr:"le café",vn:'cà phê'},{fr:"marcher",vn:'đi bộ'},{fr:"rester ici",vn:'ở đây'}]},
+ {fr:"Y a-t-il ___ ici ?",vn:'Ở đây có ___ không?',slots:[{fr:"un restaurant",vn:'nhà hàng'},{fr:"un taxi",vn:'taxi'},{fr:"un distributeur",vn:'ATM'},{fr:"un café",vn:'quán cà phê'}]},
+ {fr:"Je suis ___",vn:'Tôi bị ___',slots:[{fr:"malade",vn:'bệnh'},{fr:"perdu",vn:'lạc'},{fr:"fatigué",vn:'mệt'},{fr:"dans un embouteillage",vn:'kẹt xe'}]},
+ {fr:"Puis-je demander ___",vn:'Cho tôi hỏi ___',slots:[{fr:"une chose",vn:'một chút'},{fr:"le chemin",vn:'đường'},{fr:"le prix",vn:'giá'},{fr:"l'heure",vn:'mấy giờ'}]},
+ {fr:"Je ne connais pas ___",vn:'Tôi không biết ___',slots:[{fr:"le chemin",vn:'đường'},{fr:"le nom",vn:'tên'},{fr:"le prix",vn:'giá'},{fr:"parler (vn)",vn:'nói'}]},
+ {fr:"Comment s'appelle ___ ?",vn:'___ tên gì?',slots:[{fr:"tu",vn:'Bạn'},{fr:"ceci",vn:'Cái này'},{fr:"ce plat",vn:'Món này'},{fr:"cet endroit",vn:'Chỗ này'}]},
+ {fr:"Je veux réserver ___",vn:'Tôi muốn đặt ___',slots:[{fr:"une chambre",vn:'phòng'},{fr:"une table",vn:'bàn'},{fr:"un billet",vn:'vé'},{fr:"un taxi",vn:'taxi'}]},
+ {fr:"Je viens de ___",vn:'Tôi đến từ ___',slots:[{fr:"France",vn:'Pháp'},{fr:"Paris",vn:'Paris'},{fr:"Europe",vn:'châu Âu'},{fr:"loin",vn:'xa'}]},
+ {fr:"À quelle heure ___ ?",vn:'Mấy giờ ___?',slots:[{fr:"ça ouvre",vn:'mở cửa'},{fr:"ça ferme",vn:'đóng cửa'},{fr:"on part",vn:'đi'},{fr:"on mange",vn:'ăn'}]},
+ {fr:"Je veux apprendre ___",vn:'Tôi muốn học ___',slots:[{fr:"le vietnamien",vn:'tiếng Việt'},{fr:"à parler",vn:'nói'},{fr:"ceci",vn:'cái này'},{fr:"davantage",vn:'thêm'}]},
+ {fr:"Est-ce que ceci a ___ ?",vn:'Cái này có ___ không?',slots:[{fr:"du piquant",vn:'cay'},{fr:"du sucre",vn:'đường'},{fr:"de la viande",vn:'thịt'},{fr:"de la glace",vn:'đá'}]},
+ {fr:"Je veux manger ___",vn:'Tôi muốn ăn ___',slots:[{fr:"du phở",vn:'phở'},{fr:"du riz",vn:'cơm'},{fr:"un bánh mì",vn:'bánh mì'},{fr:"quelque chose",vn:'gì đó'}]},
+ {fr:"Peux-tu ___ ?",vn:'Bạn ___ được không?',slots:[{fr:"m'aider",vn:'giúp tôi'},{fr:"répéter",vn:'nói lại'},{fr:"attendre",vn:'chờ'},{fr:"montrer",vn:'chỉ'}]},
+ {fr:"Je ___ un instant",vn:'Tôi ___ một chút',slots:[{fr:"me repose",vn:'nghỉ'},{fr:"attends",vn:'đợi'},{fr:"regarde",vn:'xem'},{fr:"réfléchis",vn:'suy nghĩ'}]},
+ {fr:"C'est ___",vn:'Đây là ___',slots:[{fr:"à moi",vn:'của tôi'},{fr:"mon ami",vn:'bạn tôi'},{fr:"la première fois",vn:'lần đầu'},{fr:"l'argent",vn:'tiền'}]},
+ {fr:"Je veux rentrer ___",vn:'Tôi muốn về ___',slots:[{fr:"à la maison",vn:'nhà'},{fr:"à l'hôtel",vn:'khách sạn'},{fr:"en France",vn:'Pháp'},{fr:"tôt",vn:'sớm'}]},
+ {fr:"Est-ce possible de ___ ?",vn:'___ được không?',slots:[{fr:"prendre une photo",vn:'Chụp hình'},{fr:"baisser le prix",vn:'Giảm giá'},{fr:"payer après",vn:'Trả sau'},{fr:"essayer",vn:'Thử'}]},
+ {fr:"Je comprends ___",vn:'Tôi hiểu ___',slots:[{fr:"maintenant",vn:'rồi'},{fr:"un peu",vn:'một chút'},{fr:"toi",vn:'bạn'},{fr:"le vietnamien",vn:'tiếng Việt'}]},
+ {fr:"Merci ___",vn:'Cảm ơn ___',slots:[{fr:"beaucoup",vn:'rất nhiều'},{fr:"à toi",vn:'bạn'},{fr:"monsieur",vn:'anh'},{fr:"madame",vn:'chị'}]}
+];
+function patFull(){const p=PATTERNS[patIdx],s=p.slots[patSlot];return p.vn.replace('___',s.vn);}
+function patListen(){speak(patFull());}
+function renderPat(){
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+  document.getElementById('secPat').style.display='';
+  if(patIdx>=PATTERNS.length)patIdx=0;
+  const p=PATTERNS[patIdx];
+  if(patSlot>=p.slots.length)patSlot=0;
+  const s=p.slots[patSlot];
+  patAnswered=false;
+  document.getElementById('patFrameVn').innerHTML=p.vn.replace('___','<span style="color:var(--p);font-weight:900">•••</span>');
+  document.getElementById('patFrameFr').textContent=p.fr.replace('___','…');
+  document.getElementById('patCue').textContent='→ '+s.fr;
+  document.getElementById('patStat').textContent='motif '+(patIdx+1)+'/'+PATTERNS.length;
+  document.getElementById('patReveal').style.display='none';
+  document.getElementById('patSlotPos').textContent=(patSlot+1)+' / '+p.slots.length;
+  updProg(patSlot+1,p.slots.length);
+  setTimeout(patListen,250);
+}
+function patReveal(){
+  if(patAnswered){patNext();return;}
+  patAnswered=true;
+  const p=PATTERNS[patIdx],s=p.slots[patSlot];
+  document.getElementById('patFullVn').textContent=patFull();
+  document.getElementById('patFullFr').textContent=p.fr.replace('___',s.fr);
+  document.getElementById('patReveal').style.display='';
+  speak(patFull());
+}
+function patNext(){
+  const p=PATTERNS[patIdx];
+  patSlot++;
+  if(patSlot>=p.slots.length){patSlot=0;patIdx=(patIdx+1)%PATTERNS.length;}
+  renderPat();
+}
 function renderTons(){
   ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
