@@ -369,6 +369,9 @@
         <button class="seg-btn" data-tab="prononciation" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-mic"/></svg> Pronon.
         </button>
+        <button class="seg-btn" data-tab="tons" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-vol"/></svg> Tons
+        </button>
         <button class="seg-btn" data-tab="examen" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-exam"/></svg> Examen
         </button>
@@ -624,6 +627,41 @@
                 <svg class="ico"><use href="#i-arrow-r"/></svg>
             </button>
         </div>
+    </div>
+
+    <!-- ── Section Tons ── -->
+    <div id="secTons" style="display:none">
+        <div class="pron-card">
+            <span class="pron-pos" id="toneStat"></span>
+            <div class="pron-label">Quel ton entends-tu ?</div>
+            <div class="pron-word" id="toneBase">ma</div>
+            <button class="btn-listen" onclick="toneListen()">
+                <svg class="ico ico-sm"><use href="#i-vol"/></svg> Écouter
+            </button>
+        </div>
+        <div id="toneChoices" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">
+            <button class="tone-ch seg-btn" data-m="ngang" onclick="toneGuess('ngang')" style="min-width:88px;padding:10px 12px">ngang · a</button>
+            <button class="tone-ch seg-btn" data-m="sắc" onclick="toneGuess('sắc')" style="min-width:88px;padding:10px 12px">sắc · á</button>
+            <button class="tone-ch seg-btn" data-m="huyền" onclick="toneGuess('huyền')" style="min-width:88px;padding:10px 12px">huyền · à</button>
+            <button class="tone-ch seg-btn" data-m="hỏi" onclick="toneGuess('hỏi')" style="min-width:88px;padding:10px 12px">hỏi · ả</button>
+            <button class="tone-ch seg-btn" data-m="ngã" onclick="toneGuess('ngã')" style="min-width:88px;padding:10px 12px">ngã · ã</button>
+            <button class="tone-ch seg-btn" data-m="nặng" onclick="toneGuess('nặng')" style="min-width:88px;padding:10px 12px">nặng · ạ</button>
+        </div>
+        <div class="pron-result" id="toneReveal" style="display:none">
+            <div class="pron-verdict" id="toneVerdict"></div>
+            <div class="pron-heard"><span id="toneWord" style="font-size:1.5rem;font-weight:800"></span> &nbsp;·&nbsp; <span id="toneName"></span></div>
+            <div class="pron-diff" id="toneMean"></div>
+            <div class="pron-heard" id="toneHeard"></div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-mic" id="toneMic" style="display:none" onclick="toneReco()">
+                <svg class="ico ico-lg"><use href="#i-mic"/></svg><span id="toneMicTxt">Prononce</span>
+            </button>
+            <button class="btn btn-p" onclick="toneNext()">
+                Suivant <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+        </div>
+        <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">Sud : hỏi ≈ ngã à l'oral · 6 marques écrites</div>
     </div>
 
     <!-- ── Section Examen ── -->
@@ -1395,6 +1433,7 @@ let deck=[],idx=0,okN=0,koN=0,answered=false,sessErr=new Set();
 let pBatch=[],pMat=new Set(),sL=-1,sR=-1;
 let flashIdx=0,flashFlipped=false,flashSearch='';
 let pronIdx=0;
+let toneFam=0,toneTarget=null,toneAnswered=false,toneStat={ok:0,tot:0};
 let examTimerOn=false,examTimerSec=20,examTimerInterval=null;
 let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
 const BATCH=4;
@@ -1485,13 +1524,15 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation';
-    document.getElementById('modeRow').style.display=(isPron||isExam)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
+    document.getElementById('secTons').style.display=isTons?'':'none';
     if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
+    else if(isTons)renderTons();
     else if(isExam)renderExamSetup();
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -1504,6 +1545,7 @@ function reset(){
     pronIdx=0;
     if(mainTab==='fiches')renderFlash();
     else if(mainTab==='prononciation')renderPron();
+    else if(mainTab==='tons')renderTons();
     else if(mainTab==='exercices'&&exT==='phrases'){phraseDeck=shuf([...sentences]);phraseIdx=0;phraseAnswered=false;renderPhrase();}
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -1978,6 +2020,83 @@ function showPronResult(alts,target){
     verdict.textContent=allOk?'Parfait !':'Les mots en rouge sont à retravailler.';
     verdict.className='pron-verdict '+(allOk?'ok':'ko');
     document.getElementById('pronResult').style.display='';
+}
+
+/* ══════════════════════════════
+   ── ENTRAÎNEMENT DES TONS ──
+══════════════════════════════ */
+const TONESETS=[
+  {base:'ma',forms:[{m:'ngang',w:'ma',fr:'fantôme',en:'ghost'},{m:'sắc',w:'má',fr:'maman / joue',en:'mom / cheek'},{m:'huyền',w:'mà',fr:'mais',en:'but'},{m:'hỏi',w:'mả',fr:'tombe',en:'tomb'},{m:'ngã',w:'mã',fr:'cheval / code',en:'horse / code'},{m:'nặng',w:'mạ',fr:'jeune plant de riz',en:'rice seedling'}]},
+  {base:'la',forms:[{m:'ngang',w:'la',fr:'crier',en:'to shout'},{m:'sắc',w:'lá',fr:'feuille',en:'leaf'},{m:'huyền',w:'là',fr:'être / repasser',en:'to be / iron'},{m:'hỏi',w:'lả',fr:'défaillir',en:'to faint'},{m:'ngã',w:'lã',fr:'eau plate',en:'plain water'},{m:'nặng',w:'lạ',fr:'étrange',en:'strange'}]},
+  {base:'ba',forms:[{m:'ngang',w:'ba',fr:'trois / papa',en:'three / dad'},{m:'sắc',w:'bá',fr:'embrasser (Sud)',en:'to hug (South)'},{m:'huyền',w:'bà',fr:'grand-mère / madame',en:'grandma'},{m:'hỏi',w:'bả',fr:'appât',en:'bait'},{m:'ngã',w:'bã',fr:'résidu / marc',en:'dregs'},{m:'nặng',w:'bạ',fr:'au hasard',en:'randomly'}]},
+  {base:'bo',forms:[{m:'ngang',w:'bo',fr:'pourboire (fam.)',en:'tip'},{m:'sắc',w:'bó',fr:'botte / fagot',en:'bundle'},{m:'huyền',w:'bò',fr:'vache / ramper',en:'cow / to crawl'},{m:'hỏi',w:'bỏ',fr:'abandonner / laisser',en:'to quit'},{m:'ngã',w:'bõ',fr:'ça vaut la peine',en:'worth it'},{m:'nặng',w:'bọ',fr:'insecte',en:'bug'}]}
+];
+function renderTons(){
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+  document.getElementById('secTons').style.display='';
+  const fam=TONESETS[toneFam];
+  toneTarget=fam.forms[Math.floor(Math.random()*fam.forms.length)];
+  toneAnswered=false;
+  document.getElementById('toneBase').textContent=fam.base;
+  document.getElementById('toneStat').textContent=toneStat.tot?(toneStat.ok+'/'+toneStat.tot):'';
+  document.getElementById('toneReveal').style.display='none';
+  document.getElementById('toneHeard').textContent='';
+  document.querySelectorAll('.tone-ch').forEach(b=>{b.disabled=false;b.classList.remove('p-ok','p-ko');b.style.opacity='1';});
+  document.getElementById('toneMic').style.display='none';
+  updProg((toneStat.tot%12)+1,12);
+  setTimeout(()=>speak(toneTarget.w),250);
+}
+function toneListen(){if(toneTarget)speak(toneTarget.w);}
+function toneGuess(m){
+  if(toneAnswered||!toneTarget)return;
+  toneAnswered=true;toneStat.tot++;
+  const ok=(m===toneTarget.m);if(ok)toneStat.ok++;
+  document.querySelectorAll('.tone-ch').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.m===toneTarget.m)b.classList.add('p-ok');
+    else if(b.dataset.m===m)b.classList.add('p-ko');
+    else b.style.opacity='.5';
+  });
+  document.getElementById('toneWord').textContent=toneTarget.w;
+  document.getElementById('toneName').textContent='ton '+toneTarget.m;
+  document.getElementById('toneMean').textContent=toneTarget.fr+' · '+toneTarget.en;
+  const v=document.getElementById('toneVerdict');
+  v.textContent=ok?'Correct !':'Raté — c’était le ton '+toneTarget.m;
+  v.className='pron-verdict '+(ok?'ok':'ko');
+  document.getElementById('toneReveal').style.display='';
+  document.getElementById('toneStat').textContent=toneStat.ok+'/'+toneStat.tot;
+  const noReco=!hasSpeechReco||isPWA;
+  const mic=document.getElementById('toneMic');
+  mic.style.display=noReco?'none':'';
+  mic.disabled=false;document.getElementById('toneMicTxt').textContent='Prononce';
+  speak(toneTarget.w);
+}
+function toneNext(){toneFam=Math.floor(Math.random()*TONESETS.length);renderTons();}
+async function toneReco(){
+  const SpeechReco=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechReco||!toneTarget)return;
+  const mic=document.getElementById('toneMic'),txt=document.getElementById('toneMicTxt');
+  mic.classList.add('listening');txt.textContent='Autorisation...';
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());}
+    catch(err){mic.classList.remove('listening');txt.textContent='Prononce';document.getElementById('toneHeard').textContent=err.name==='NotAllowedError'?'Micro refusé — autorise-le dans Safari':'Erreur micro';return;}
+  }
+  txt.textContent='Écoute...';
+  const r=new SpeechReco();r.lang='vi-VN';r.interimResults=false;r.maxAlternatives=5;
+  let done=false;
+  const to=setTimeout(()=>{if(!done){done=true;try{r.stop();}catch{}mic.classList.remove('listening');txt.textContent='Prononce';document.getElementById('toneHeard').textContent='Rien entendu — réessaie';}},9000);
+  r.onresult=e=>{
+    if(done)return;done=true;clearTimeout(to);mic.classList.remove('listening');txt.textContent='Réessayer';
+    const alts=Array.from(e.results[0]).map(a=>a.transcript.trim());
+    const hit=alts.some(a=>a.toLowerCase()===toneTarget.w.toLowerCase());
+    const h=document.getElementById('toneHeard');
+    h.textContent=(hit?'✓ Bon ton ! ':'✗ Reconnu : ')+'"'+alts[0]+'" (cible : '+toneTarget.w+')';
+    h.style.color=hit?'var(--ok)':'var(--ko)';
+  };
+  r.onerror=e=>{if(done)return;done=true;clearTimeout(to);mic.classList.remove('listening');txt.textContent='Prononce';document.getElementById('toneHeard').textContent=e.error==='no-speech'?'Rien entendu, réessaie':'Erreur : '+e.error;};
+  r.onend=()=>{clearTimeout(to);mic.classList.remove('listening');if(txt.textContent==='Écoute...')txt.textContent='Prononce';};
+  r.start();
 }
 
 /* ══════════════════════════════
