@@ -1586,14 +1586,24 @@ let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
 const BATCH=4;
 
 /* ── AUDIO ── */
-let audOn=true,vnV=null;
+let audOn=true,vnV=null,ttsReady=false;
+function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices();vnV=vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith('vi'))||null;}
 function initAudio(){
     if(!window.speechSynthesis)return;
-    const load=()=>{const vs=speechSynthesis.getVoices();vnV=vs.find(v=>v.lang.startsWith('vi'))||null;};
-    load();speechSynthesis.onvoiceschanged=load;
+    pickVoice();speechSynthesis.onvoiceschanged=pickVoice;
+    /* iOS : la synthèse reste muette tant qu'un speak() n'a pas eu lieu DANS un geste.
+       Les lectures auto (Tons/Écoute/Motifs via setTimeout) sont détachées du geste → on débloque au 1er tap. */
+    const unlock=()=>{
+        if(ttsReady)return;ttsReady=true;
+        try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='vi-VN';speechSynthesis.speak(u);}catch{}
+        pickVoice();
+    };
+    ['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,unlock,{once:true,passive:true}));
 }
 function speak(txt,rate){
     if(!audOn||!window.speechSynthesis)return;
+    if(!vnV)pickVoice();
+    try{speechSynthesis.resume();}catch{}
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(txt);
     u.lang='vi-VN';u.rate=rate||audRate;u.volume=1;
@@ -2633,6 +2643,11 @@ document.getElementById('stats').addEventListener('click',e=>{if(e.target===docu
 
 if('serviceWorker' in navigator){
     window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+    /* Nouveau SW prend le contrôle → recharge 1× pour afficher la version fraîche (débloque le cache mobile). */
+    let swRefreshing=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(swRefreshing)return;swRefreshing=true;location.reload();
+    });
 }
 </script>
 </body>
