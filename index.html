@@ -428,6 +428,13 @@
 </header>
 
 <main>
+    <!-- Avertissement iOS : le mode Silencieux coupe le TTS web (affiché 1×, iOS only) -->
+    <div id="iosAudioHint" style="display:none;align-items:center;gap:9px;background:linear-gradient(135deg,rgba(109,76,255,.16),rgba(139,92,246,.09));border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:.82rem">
+        <svg class="ico ico-sm" style="flex:none;color:var(--pg)"><use href="#i-vol-off"/></svg>
+        <span style="flex:1;color:#cbb8ff">Pas de son ? Désactive le <strong>mode Silencieux</strong> de ton iPhone (switch latéral).</span>
+        <button onclick="dismissIosHint()" aria-label="Fermer" style="flex:none;background:none;border:none;color:var(--muted);font-size:1.35rem;line-height:1;cursor:pointer;padding:0 4px">×</button>
+    </div>
+
     <!-- Mode FR↔VN (masqué en prononciation) -->
     <div class="seg" id="modeRow">
         <button class="seg-btn active" data-mode="en-vn" onclick="setMode(this)">EN → VN</button>
@@ -1618,6 +1625,12 @@ function toggleAudio(){
     document.getElementById('audBtn').classList.toggle('off',!audOn);
     document.getElementById('audIco').querySelector('use').setAttribute('href',audOn?'#i-vol':'#i-vol-off');
 }
+function dismissIosHint(){try{localStorage.setItem('viet_ios_audio_hint','1');}catch{}const e=document.getElementById('iosAudioHint');if(e)e.style.display='none';}
+function initIosHint(){
+    const isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    let done=false;try{done=localStorage.getItem('viet_ios_audio_hint')==='1';}catch{}
+    if(isIOS&&!done){const e=document.getElementById('iosAudioHint');if(e)e.style.display='flex';}
+}
 function setSpeed(btn){
     audRate=parseFloat(btn.dataset.rate);
     document.querySelectorAll('.spd-btn').forEach(b=>b.classList.toggle('active',b===btn));
@@ -2634,7 +2647,7 @@ document.getElementById('guide').addEventListener('click',e=>{if(e.target===docu
 
 /* ── INIT ── */
 document.getElementById('wc').textContent=vocab.length;
-initAudio();initStreak();initCatCounts();buildGuide();updSRSStat();
+initAudio();initStreak();initCatCounts();buildGuide();updSRSStat();initIosHint();
 deck=buildDeck();showCard();
 initSwipe();
 buildKB('vRow2','tRow2','phraseAns');
