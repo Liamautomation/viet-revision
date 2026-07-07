@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#512feb">
+    <meta name="theme-color" content="#0b0b14">
+    <meta name="color-scheme" content="dark">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
-    <title>Révision Viet</title>
+    <title>Tiếng Việt · Révision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" async></script>
     <style>
         *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -253,6 +259,71 @@
         .exam-wrong-correct{font-size:.88rem;color:#4ade80;font-weight:700;}
         .exam-wrong-said{font-size:.78rem;color:#f87171;margin-top:2px;}
 
+        /* ══════════════════════════════════════════════
+           COUCHE PREMIUM — refonte dark violet néon 2026
+           (override par cascade, aucun selector d'origine perdu)
+        ══════════════════════════════════════════════ */
+        :root{
+            --pl:#8b6dff;--neon:#6d4bff;--pg:#a78bfa;
+            --bg:#0b0b14;--s1:#14141f;--s2:#1f1f31;
+            --line:rgba(255,255,255,.07);--r-lg:24px;
+            --shadow:0 18px 48px -14px rgba(46,20,120,.62);
+            --sp:cubic-bezier(.34,1.56,.64,1);
+        }
+        body{font-family:'Outfit',system-ui,-apple-system,sans-serif;color-scheme:dark;min-height:100dvh;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+        /* halo ambiant + grain (anti-flat) */
+        body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+            radial-gradient(62% 46% at 16% -2%,rgba(109,76,255,.24),transparent 68%),
+            radial-gradient(52% 42% at 104% 10%,rgba(139,92,246,.15),transparent 72%),
+            radial-gradient(74% 52% at 50% 110%,rgba(58,28,158,.22),transparent 70%),
+            var(--bg);}
+        body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.045;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+        /* wordmark Syne + logo glow */
+        .hdr-title h1{font-family:'Syne','Outfit',sans-serif;font-weight:800;letter-spacing:-.02em;font-size:1.3rem;}
+        .logo{font-family:'Syne',sans-serif;box-shadow:0 6px 20px -4px rgba(109,76,255,.6),inset 0 1px 0 rgba(255,255,255,.28);}
+        .streak,.flash-pos,.exam-counter,.stats-num,.pron-pos,.card-tag,#wc,#strk{font-variant-numeric:tabular-nums;}
+
+        /* onglets = strip pills néon scrollable */
+        .seg{background:rgba(20,20,31,.68);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:var(--line);border-radius:14px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;scroll-behavior:smooth;}
+        .seg::-webkit-scrollbar{display:none;}
+        .seg-btn{flex:1 0 auto;min-width:max-content;white-space:nowrap;border-radius:10px;transition:color var(--t),background var(--t),box-shadow var(--t),transform var(--t);}
+        .seg-btn.active{background:linear-gradient(135deg,var(--p),var(--neon));color:#fff;box-shadow:0 6px 18px -5px rgba(109,76,255,.75),inset 0 1px 0 rgba(255,255,255,.28);transform:translateY(-1px);}
+        .seg-btn:active{transform:translateY(0) scale(.96);}
+
+        /* surfaces verre approfondi + halo interne */
+        .card,.pron-card,.flash-face,.g-box,.stats-panel{border-radius:var(--r-lg);border:1px solid var(--line);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.08);}
+        .card,.pron-card{background:linear-gradient(180deg,rgba(31,31,50,.74),rgba(17,17,28,.74));backdrop-filter:blur(28px) saturate(1.25);-webkit-backdrop-filter:blur(28px) saturate(1.25);overflow:hidden;}
+        .card::before,.pron-card::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(130% 82% at 50% -12%,rgba(139,92,246,.17),transparent 58%);}
+        .card>*,.pron-card>*{position:relative;z-index:1;}
+        .card-q,.pron-word,.flash-q,.flash-a{letter-spacing:-.015em;}
+
+        /* boutons : gradient + press + focus ring */
+        .btn{transition:background var(--t),color var(--t),border-color var(--t),transform var(--t),box-shadow var(--t);}
+        .btn-p{background:linear-gradient(135deg,var(--p),var(--neon));box-shadow:0 8px 24px -7px rgba(109,76,255,.68),inset 0 1px 0 rgba(255,255,255,.22);}
+        .btn-p:hover{background:linear-gradient(135deg,var(--pl),var(--neon));}
+        .btn:active{transform:scale(.97);}
+        .icon-btn:active,.cat-btn:active,.qb:active:not(:disabled),.vb:active,.tb:active,.spd-btn:active,.exam-choice:active:not(:disabled){transform:scale(.95);}
+        :focus-visible{outline:2px solid var(--neon);outline-offset:2px;border-radius:6px;}
+        button:focus:not(:focus-visible){outline:none;}
+
+        /* chips, inputs, progress : glow discret */
+        .cat-btn.active{box-shadow:0 0 0 1px var(--p),0 4px 14px -5px rgba(109,76,255,.55);}
+        .ans-input:focus,.search-input:focus{box-shadow:0 0 0 3px rgba(109,76,255,.22);}
+        .prog-fill,.stats-bar-fill{box-shadow:0 0 12px rgba(109,76,255,.55);}
+        .icon-btn,.streak{border-radius:11px;}
+
+        /* entrée en scène (staggered spring) */
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .card,.pron-card,.flash-wrap,#secTons>.pron-card,#secPat>.pron-card,#secListen>.pron-card{animation:fadeUp .42s var(--sp) both;}
+        .cats .cat-btn{animation:fadeUp .3s ease both;}
+
+        /* détails */
+        ::selection{background:rgba(109,76,255,.38);color:#fff;}
+        .stats-panel::-webkit-scrollbar,#guide::-webkit-scrollbar{width:8px;}
+        .stats-panel::-webkit-scrollbar-thumb,#guide::-webkit-scrollbar-thumb{background:var(--s2);border-radius:4px;}
+        .qcm-grid{gap:9px;}
+
         @media(prefers-reduced-motion:reduce){
             *,*::before,*::after{transition:none!important;animation:none!important;}
         }
@@ -324,13 +395,18 @@
     <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </symbol>
+    <symbol id="i-ear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 14v-2a9 9 0 0 1 18 0v2"/>
+        <path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/>
+        <path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/>
+    </symbol>
 </svg>
 
 <header>
     <div class="hdr-left">
         <div class="logo">VN</div>
         <div class="hdr-title">
-            <h1>Révision Viet</h1>
+            <h1>Tiếng Việt</h1>
             <p>Hai Tiên · <span id="wc">0</span> mots</p>
         </div>
     </div>
@@ -374,6 +450,9 @@
         </button>
         <button class="seg-btn" data-tab="patterns" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-grid"/></svg> Motifs
+        </button>
+        <button class="seg-btn" data-tab="listen" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-ear"/></svg> Écoute
         </button>
         <button class="seg-btn" data-tab="examen" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-exam"/></svg> Examen
@@ -693,6 +772,40 @@
         </div>
         <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">
             Écoute → dis la phrase à voix haute → révèle · <span id="patSlotPos"></span>
+        </div>
+    </div>
+
+    <!-- ── Section Écoute inversée ── -->
+    <div id="secListen" style="display:none">
+        <div class="pron-card">
+            <span class="pron-pos" id="lisStat"></span>
+            <div class="pron-label">Qu'entends-tu ?</div>
+            <svg class="ico" style="width:58px;height:58px;color:var(--p);margin:8px auto 0;display:block"><use href="#i-ear"/></svg>
+            <div style="text-align:center;font-size:.85rem;color:var(--muted);margin-top:2px">Vietnamien → devine le sens</div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+                <button class="btn-listen" onclick="lisReplay()">
+                    <svg class="ico ico-sm"><use href="#i-vol"/></svg> Réécouter
+                </button>
+                <button class="btn-listen" onclick="lisSlow()">
+                    <svg class="ico ico-sm"><use href="#i-vol"/></svg> Ralenti
+                </button>
+            </div>
+        </div>
+        <div class="pron-result" id="lisRev" style="display:none">
+            <div id="lisVn" style="font-size:1.6rem;font-weight:800;color:var(--ok)"></div>
+            <div class="pron-diff" id="lisFr" style="margin-top:6px"></div>
+            <div class="pron-diff" id="lisEn" style="color:var(--muted);font-size:.82rem"></div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-s" onclick="lisReveal()">
+                <svg class="ico ico-lg"><use href="#i-check"/></svg><span>Révéler</span>
+            </button>
+            <button class="btn btn-p" onclick="lisNext()">
+                Suivant <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+        </div>
+        <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">
+            Audio d'abord · réécoute autant que besoin · puis révèle le sens
         </div>
     </div>
 
@@ -1467,6 +1580,7 @@ let flashIdx=0,flashFlipped=false,flashSearch='';
 let pronIdx=0;
 let toneFam=0,toneTarget=null,toneAnswered=false,toneStat={ok:0,tot:0};
 let patIdx=0,patSlot=0,patAnswered=false;
+let lisIdx=0,lisAnswered=false,lisDeck=[];
 let examTimerOn=false,examTimerSec=20,examTimerInterval=null;
 let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
 const BATCH=4;
@@ -1557,17 +1671,19 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns';
-    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
     document.getElementById('secTons').style.display=isTons?'':'none';
     document.getElementById('secPat').style.display=isPat?'':'none';
+    document.getElementById('secListen').style.display=isListen?'':'none';
     if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
     else if(isTons)renderTons();
     else if(isPat)renderPat();
+    else if(isListen)renderListen();
     else if(isExam)renderExamSetup();
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -1582,6 +1698,7 @@ function reset(){
     else if(mainTab==='prononciation')renderPron();
     else if(mainTab==='tons')renderTons();
     else if(mainTab==='patterns'){patIdx=0;patSlot=0;renderPat();}
+    else if(mainTab==='listen'){lisIdx=0;lisDeck=buildDeck();renderListen();}
     else if(mainTab==='exercices'&&exT==='phrases'){phraseDeck=shuf([...sentences]);phraseIdx=0;phraseAnswered=false;renderPhrase();}
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -2117,7 +2234,7 @@ const PATTERNS=[
 function patFull(){const p=PATTERNS[patIdx],s=p.slots[patSlot];return p.vn.replace('___',s.vn);}
 function patListen(){speak(patFull());}
 function renderPat(){
-  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
   document.getElementById('secPat').style.display='';
   if(patIdx>=PATTERNS.length)patIdx=0;
@@ -2149,8 +2266,39 @@ function patNext(){
   if(patSlot>=p.slots.length){patSlot=0;patIdx=(patIdx+1)%PATTERNS.length;}
   renderPat();
 }
+/* ── ÉCOUTE INVERSÉE (audio VN → sens) ── */
+function lisReplay(){const c=lisDeck[lisIdx];if(c)speak(c.vn);}
+function lisSlow(){const c=lisDeck[lisIdx];if(c)speak(c.vn,0.45);}
+function renderListen(){
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+  document.getElementById('secListen').style.display='';
+  if(!lisDeck.length)lisDeck=buildDeck();
+  if(lisIdx>=lisDeck.length){lisIdx=0;lisDeck=buildDeck();}
+  const c=lisDeck[lisIdx];
+  lisAnswered=false;
+  document.getElementById('lisStat').textContent=(lisIdx+1)+' / '+lisDeck.length;
+  document.getElementById('lisRev').style.display='none';
+  updProg(lisIdx+1,lisDeck.length);
+  setTimeout(()=>speak(c.vn),300);
+}
+function lisReveal(){
+  if(lisAnswered){lisNext();return;}
+  lisAnswered=true;
+  const c=lisDeck[lisIdx];
+  document.getElementById('lisVn').textContent=c.vn;
+  document.getElementById('lisFr').textContent=c.fr;
+  document.getElementById('lisEn').textContent=c.en||'';
+  document.getElementById('lisRev').style.display='';
+  speak(c.vn);
+}
+function lisNext(){
+  lisIdx++;
+  if(lisIdx>=lisDeck.length){lisIdx=0;lisDeck=buildDeck();}
+  renderListen();
+}
 function renderTons(){
-  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secPat','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
   document.getElementById('secTons').style.display='';
   const fam=TONESETS[toneFam];
