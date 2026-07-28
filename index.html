@@ -171,6 +171,17 @@
         .btn-mic{background:var(--s1);border:2px solid var(--s2);color:var(--text);}
         .btn-mic:hover{border-color:var(--p);color:#a78bfa;}
         .btn-mic.listening{background:rgba(239,68,68,.12);border-color:var(--ko)!important;color:var(--ko)!important;animation:mic-pulse 1.2s ease-in-out infinite;}
+        /* Structure — reconstruction de phrase */
+        .struct-tag{display:inline-block;font-size:.68rem;font-weight:700;color:#a78bfa;background:rgba(81,47,235,.14);border:1px solid rgba(81,47,235,.25);border-radius:20px;padding:3px 10px;margin-bottom:10px;letter-spacing:.02em;}
+        .struct-slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:flex-start;min-height:52px;padding:10px;margin:14px 0;border:1.5px dashed var(--s2);border-radius:12px;transition:border-color var(--t);}
+        .struct-slots.filled{border-style:solid;}
+        .struct-chip{background:var(--s2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 14px;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity var(--t),transform var(--t),background var(--t);}
+        .struct-chip:active{transform:scale(.95);}
+        .struct-chip.used{opacity:.22;pointer-events:none;}
+        .struct-slot-chip{background:linear-gradient(135deg,var(--p),var(--neon));color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px -4px rgba(109,76,255,.6);}
+        .struct-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px;}
+        .struct-rule{padding:10px 13px;background:rgba(81,47,235,.1);border:1px solid rgba(81,47,235,.2);border-radius:9px;font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:8px;}
+        .struct-rule strong{color:#a78bfa;}
         @keyframes mic-pulse{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* End screen */
@@ -377,6 +388,11 @@
         <polyline points="2 17 12 22 22 17"/>
         <polyline points="2 12 12 17 22 12"/>
     </symbol>
+    <symbol id="i-blocks" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="4" rx="1"/>
+        <rect x="3" y="10" width="11" height="4" rx="1"/>
+        <rect x="3" y="16" width="15" height="4" rx="1"/>
+    </symbol>
     <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
         <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -457,6 +473,9 @@
         </button>
         <button class="seg-btn" data-tab="patterns" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-grid"/></svg> Motifs
+        </button>
+        <button class="seg-btn" data-tab="structure" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-blocks"/></svg> Structure
         </button>
         <button class="seg-btn" data-tab="listen" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-ear"/></svg> Écoute
@@ -782,6 +801,37 @@
         </div>
     </div>
 
+    <!-- ── Section Structure ── -->
+    <div id="secStruct" style="display:none">
+        <div class="pron-card">
+            <span class="pron-pos" id="structStat"></span>
+            <div class="pron-label">Reconstruis la phrase dans le bon ordre</div>
+            <div class="struct-tag" id="structTag"></div>
+            <div class="pron-word" style="font-size:1.05rem;font-weight:700" id="structFr">Je mange du riz.</div>
+            <div class="struct-slots" id="structSlots"></div>
+            <div class="struct-bank" id="structBank"></div>
+        </div>
+        <div class="pron-result" id="structReveal" style="display:none">
+            <div class="pron-verdict" id="structVerdict"></div>
+            <div id="structFullVn" style="font-size:1.5rem;font-weight:800;color:var(--ok);margin-top:4px"></div>
+            <div class="struct-rule" id="structRuleTip"></div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-o" onclick="structClear()">
+                <svg class="ico ico-sm"><use href="#i-refresh"/></svg><span>Effacer</span>
+            </button>
+            <button class="btn btn-s" id="structCheckBtn" onclick="structCheck()">
+                <svg class="ico ico-lg"><use href="#i-check"/></svg><span>Vérifier</span>
+            </button>
+            <button class="btn btn-p" onclick="structNext()">
+                Suivant <svg class="ico"><use href="#i-arrow-r"/></svg>
+            </button>
+        </div>
+        <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">
+            Touche les blocs dans l'ordre vietnamien · touche un bloc placé pour le retirer
+        </div>
+    </div>
+
     <!-- ── Section Écoute inversée ── -->
     <div id="secListen" style="display:none">
         <div class="pron-card">
@@ -959,6 +1009,8 @@
         <div class="g-h2">Consonnes composées</div>
         <div class="c-grid" id="gCons"></div>
         <div class="g-rule" id="gRules"></div>
+        <div class="g-h2">Construction de la phrase</div>
+        <div id="gStruct"></div>
     </div>
 </div>
 
@@ -1590,6 +1642,7 @@ let patIdx=0,patSlot=0,patAnswered=false;
 let lisIdx=0,lisAnswered=false,lisDeck=[];
 let examTimerOn=false,examTimerSec=20,examTimerInterval=null;
 let phraseDeck=[],phraseIdx=0,phraseAnswered=false;
+let structDeck=[],structIdx=0,structAnswered=false,structPicked=[];
 const BATCH=4;
 
 /* ── AUDIO ── */
@@ -1694,19 +1747,21 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen';
-    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen',isStruct=mainTab==='structure';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen||isStruct)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
     document.getElementById('secTons').style.display=isTons?'':'none';
     document.getElementById('secPat').style.display=isPat?'':'none';
     document.getElementById('secListen').style.display=isListen?'':'none';
+    document.getElementById('secStruct').style.display=isStruct?'':'none';
     if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
     else if(isTons)renderTons();
     else if(isPat)renderPat();
     else if(isListen)renderListen();
+    else if(isStruct){structDeck=shuf([...STRUCT_DRILLS]);structIdx=0;renderStruct();}
     else if(isExam)renderExamSetup();
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -1722,6 +1777,7 @@ function reset(){
     else if(mainTab==='tons')renderTons();
     else if(mainTab==='patterns'){patIdx=0;patSlot=0;renderPat();}
     else if(mainTab==='listen'){lisIdx=0;lisDeck=buildDeck();renderListen();}
+    else if(mainTab==='structure'){structDeck=shuf([...STRUCT_DRILLS]);structIdx=0;renderStruct();}
     else if(mainTab==='exercices'&&exT==='phrases'){phraseDeck=shuf([...sentences]);phraseIdx=0;phraseAnswered=false;renderPhrase();}
     else{okN=koN=idx=0;answered=false;pMat=new Set();sL=sR=-1;sessErr=new Set();updScores();document.getElementById('ringFill').style.strokeDashoffset=364;showCard();updSRSStat();}
 }
@@ -2289,6 +2345,130 @@ function patNext(){
   if(patSlot>=p.slots.length){patSlot=0;patIdx=(patIdx+1)%PATTERNS.length;}
   renderPat();
 }
+
+/* ══════════════════════════════
+   ── STRUCTURE DE PHRASE ──
+   Le problème n'est jamais le vocabulaire mais l'ordre : le VN ne se
+   traduit pas mot à mot depuis le FR. Chaque motif ci-dessous illustre
+   UNE règle d'ordre ; l'exercice fait reconstruire la phrase par blocs
+   (pas mot à mot) pour ancrer l'ordre plutôt que la traduction littérale.
+══════════════════════════════ */
+const STRUCT_RULES={
+    svo:{tag:"Ordre de base",tip:"Comme en français : Sujet + Verbe + Objet."},
+    adj:{tag:"Adjectif = verbe",tip:"Pas de « être » devant un adjectif : « Tôi mệt » = littéralement « Je fatigué »."},
+    neg:{tag:"Négation",tip:"« không » se place AVANT le verbe ou l'adjectif, jamais après."},
+    time:{tag:"Marqueur temporel",tip:"« đã / đang / sẽ » (passé / présent / futur) se placent juste AVANT le verbe."},
+    yn:{tag:"Question oui/non",tip:"« có ... không ? » encadre le verbe ou l'adjectif."},
+    wh:{tag:"Question ouverte",tip:"Le mot interrogatif (gì, đâu, bao nhiêu...) reste À LA PLACE de la réponse — jamais déplacé en tête comme en français."},
+    clf:{tag:"Classificateur",tip:"Le classificateur (cái, con...) se place entre le nombre et le nom."},
+    poss:{tag:"Possession",tip:"« của » (de) : Objet possédé + của + Possesseur — même ordre qu'en français."},
+    comp:{tag:"Comparatif",tip:"L'adjectif reste en premier, suivi de « hơn » (plus que)."},
+    topic:{tag:"Complément en tête",tip:"Un complément de temps/lieu peut se placer AVANT le sujet — ordre plus libre qu'en français."},
+};
+const STRUCT_DRILLS=[
+    {chunks:["Tôi","ăn","cơm"],fr:"Je mange du riz.",rule:'svo'},
+    {chunks:["Tôi","uống","cà phê"],fr:"Je bois du café.",rule:'svo'},
+    {chunks:["Tôi","mệt"],fr:"Je suis fatigué.",rule:'adj'},
+    {chunks:["Cà phê","nóng"],fr:"Le café est chaud.",rule:'adj'},
+    {chunks:["Cái này","đẹp"],fr:"C'est beau.",rule:'adj'},
+    {chunks:["Tôi","không","hiểu"],fr:"Je ne comprends pas.",rule:'neg'},
+    {chunks:["Tôi","không","biết"],fr:"Je ne sais pas.",rule:'neg'},
+    {chunks:["Cái này","không","đắt"],fr:"Ce n'est pas cher.",rule:'neg'},
+    {chunks:["Tôi","đang","học"],fr:"Je suis en train d'étudier.",rule:'time'},
+    {chunks:["Tôi","sẽ","đi"],fr:"Je vais partir.",rule:'time'},
+    {chunks:["Tôi","đã","ăn","rồi"],fr:"J'ai déjà mangé.",rule:'time'},
+    {chunks:["Bạn","có","khỏe","không"],fr:"Tu vas bien ?",rule:'yn',q:true},
+    {chunks:["Bạn","có","rảnh","không"],fr:"Tu es libre ?",rule:'yn',q:true},
+    {chunks:["Bạn","tên là","gì"],fr:"Comment tu t'appelles ?",rule:'wh',q:true},
+    {chunks:["Bạn","đi","đâu"],fr:"Tu vas où ?",rule:'wh',q:true},
+    {chunks:["Cái này","giá","bao nhiêu"],fr:"Combien coûte ceci ?",rule:'wh',q:true},
+    {chunks:["Tôi","có","hai","con","mèo"],fr:"J'ai deux chats.",rule:'clf'},
+    {chunks:["Cho tôi","một","cái","bánh"],fr:"Donnez-moi un gâteau.",rule:'clf'},
+    {chunks:["Đây là","cà phê","của","tôi"],fr:"Voici mon café.",rule:'poss'},
+    {chunks:["Bạn","của","tôi","rất","tốt"],fr:"Mon ami est très gentil.",rule:'poss'},
+    {chunks:["Cái này","rẻ","hơn"],fr:"Celui-ci est moins cher.",rule:'comp'},
+    {chunks:["Cà phê","ngon","hơn","trà"],fr:"Le café est meilleur que le thé.",rule:'comp'},
+    {chunks:["Ngày mai","tôi","đi","biển"],fr:"Demain je vais à la plage.",rule:'topic'},
+    {chunks:["Hôm nay","tôi","rảnh"],fr:"Aujourd'hui je suis libre.",rule:'topic'},
+];
+function structVn(d){return d.chunks.join(' ')+(d.q?' ?':'.');}
+function renderStruct(){
+    ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+    document.getElementById('secStruct').style.display='';
+    if(structIdx>=structDeck.length){structIdx=0;structDeck=shuf([...STRUCT_DRILLS]);}
+    const d=structDeck[structIdx];
+    structAnswered=false;structPicked=[];
+    const rule=STRUCT_RULES[d.rule];
+    document.getElementById('structTag').textContent=rule.tag;
+    document.getElementById('structFr').textContent=d.fr;
+    document.getElementById('structStat').textContent=(structIdx+1)+' / '+structDeck.length;
+    document.getElementById('structReveal').style.display='none';
+    document.getElementById('structCheckBtn').disabled=false;
+    structRenderBank();
+    structRenderSlots();
+}
+function structRenderBank(){
+    const d=structDeck[structIdx];
+    const bank=document.getElementById('structBank');bank.innerHTML='';
+    const order=d.chunks.map((c,i)=>i);
+    shuf(order);
+    order.forEach(i=>{
+        const b=document.createElement('button');
+        b.className='struct-chip'+(structPicked.includes(i)?' used':'');
+        b.textContent=d.chunks[i];
+        b.onclick=()=>structPick(i);
+        bank.appendChild(b);
+    });
+}
+function structRenderSlots(){
+    const d=structDeck[structIdx];
+    const slots=document.getElementById('structSlots');slots.innerHTML='';
+    slots.classList.toggle('filled',structPicked.length>0);
+    structPicked.forEach((i,pos)=>{
+        const b=document.createElement('button');
+        b.className='struct-slot-chip';
+        b.textContent=d.chunks[i];
+        b.onclick=()=>structUnpick(pos);
+        slots.appendChild(b);
+    });
+}
+function structPick(i){
+    if(structAnswered||structPicked.includes(i))return;
+    structPicked.push(i);
+    structRenderBank();structRenderSlots();
+}
+function structUnpick(pos){
+    if(structAnswered)return;
+    structPicked.splice(pos,1);
+    structRenderBank();structRenderSlots();
+}
+function structClear(){
+    if(structAnswered)return;
+    structPicked=[];
+    structRenderBank();structRenderSlots();
+}
+function structCheck(){
+    if(structAnswered){structNext();return;}
+    const d=structDeck[structIdx];
+    if(!structPicked.length)return;
+    structAnswered=true;
+    document.getElementById('structCheckBtn').disabled=true;
+    const ok=structPicked.length===d.chunks.length&&structPicked.every((v,i)=>v===i);
+    const v=document.getElementById('structVerdict');
+    v.textContent=ok?'Bon ordre !':'Pas le bon ordre — voici la phrase :';
+    v.className='pron-verdict '+(ok?'ok':'ko');
+    document.getElementById('structFullVn').textContent=structVn(d);
+    document.getElementById('structRuleTip').innerHTML='<strong>'+STRUCT_RULES[d.rule].tag+'</strong> — '+STRUCT_RULES[d.rule].tip;
+    document.getElementById('structReveal').style.display='';
+    speak(structVn(d));
+}
+function structNext(){
+    structIdx++;
+    if(structIdx>=structDeck.length){structIdx=0;structDeck=shuf([...STRUCT_DRILLS]);}
+    renderStruct();
+}
+
 /* ── ÉCOUTE INVERSÉE (audio VN → sens) ── */
 function lisReplay(){const c=lisDeck[lisIdx];if(c)speak(c.vn);}
 function lisSlow(){const c=lisDeck[lisIdx];if(c)speak(c.vn,0.45);}
@@ -2640,6 +2820,14 @@ function buildGuide(){
         cg.appendChild(d);
     });
     document.getElementById('gRules').innerHTML='<strong>Règles clés :</strong><br>• <strong>ng</strong> + a,ă,â,ô,o,u,ư — <strong>ngh</strong> + e,ê,i (même son)<br>• <strong>gh</strong> + e,ê,i — <strong>g</strong> + reste (même son)<br>• <strong>gi</strong> → "z" au Nord, "y" au Sud<br>• <strong>qu</strong> → "kw" (toujours suivi d\'une voyelle)';
+    const gs=document.getElementById('gStruct');gs.innerHTML='';
+    Object.keys(STRUCT_RULES).forEach(id=>{
+        const r=STRUCT_RULES[id];
+        const ex=STRUCT_DRILLS.find(d=>d.rule===id);
+        const d=document.createElement('div');d.className='g-rule';d.style.marginBottom='8px';
+        d.innerHTML=`<strong>${r.tag}</strong> — ${r.tip}`+(ex?`<br><span style="color:var(--text)">${structVn(ex)}</span> = ${ex.fr}`:'');
+        gs.appendChild(d);
+    });
 }
 function openGuide(){document.getElementById('guide').classList.add('show');}
 function closeGuide(){document.getElementById('guide').classList.remove('show');}
