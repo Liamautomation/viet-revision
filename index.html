@@ -182,6 +182,35 @@
         .struct-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px;}
         .struct-rule{padding:10px 13px;background:rgba(81,47,235,.1);border:1px solid rgba(81,47,235,.2);border-radius:9px;font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:8px;}
         .struct-rule strong{color:#a78bfa;}
+
+        /* Cours */
+        .les-list{display:flex;flex-direction:column;gap:10px;}
+        .les-card{background:rgba(26,26,36,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:15px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;width:100%;color:var(--text);font-family:inherit;transition:transform var(--t),border-color var(--t);}
+        .les-card:active{transform:scale(.985);border-color:rgba(81,47,235,.4);}
+        .les-n{width:34px;height:34px;border-radius:10px;background:rgba(81,47,235,.18);border:1px solid rgba(81,47,235,.3);color:#a78bfa;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .les-card h3{font-size:.95rem;font-weight:800;}
+        .les-card p{font-size:.74rem;color:var(--muted);margin-top:2px;}
+        .les-doc{background:rgba(26,26,36,.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:22px 17px;text-align:left;line-height:1.6;}
+        .les-doc h3{font-size:1.15rem;font-weight:800;margin-bottom:14px;}
+        .les-doc h4{font-size:.86rem;font-weight:800;color:#a78bfa;margin:24px 0 9px;text-transform:uppercase;letter-spacing:.05em;}
+        .les-doc h4:first-of-type{margin-top:8px;}
+        .les-doc p{font-size:.85rem;color:var(--muted);margin-bottom:10px;}
+        .les-doc b{color:var(--text);font-weight:700;}
+        .les-doc em{color:#a78bfa;font-style:normal;font-weight:700;}
+        .les-rule{padding:12px 14px;background:rgba(81,47,235,.12);border-left:3px solid var(--pl);border-radius:0 10px 10px 0;font-size:.87rem;font-weight:600;margin:12px 0;color:var(--text);line-height:1.55;}
+        .les-warn{padding:11px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.22);border-radius:10px;font-size:.8rem;color:var(--muted);margin:11px 0;line-height:1.55;}
+        .les-pair{display:block;width:100%;text-align:left;font-family:inherit;background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:background var(--t);}
+        .les-pair:active{background:var(--s2);}
+        .les-pair .en{display:block;font-size:.76rem;color:var(--muted);margin-bottom:2px;}
+        .les-pair .vn{display:block;font-size:1rem;font-weight:700;color:var(--text);}
+        .les-tbl{display:grid;gap:1px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;margin:11px 0;font-size:.78rem;line-height:1.45;}
+        .les-tbl>span{background:var(--s1);padding:8px 9px;}
+        .les-tbl>span.th{background:var(--s2);font-weight:800;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+        .les-tbl>span b{color:var(--text);}
+        .les-tbl>span .v{color:#a78bfa;font-weight:700;}
+        .les-drill{margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;gap:8px;}
+        .les-drill .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px;}
+        .les-nav{display:flex;gap:8px;margin-bottom:12px;}
         @keyframes mic-pulse{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* End screen */
@@ -459,6 +488,9 @@
 
     <!-- Onglet principal -->
     <div class="seg">
+        <button class="seg-btn" data-tab="cours" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-book"/></svg> Cours
+        </button>
         <button class="seg-btn" data-tab="fiches" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-layers"/></svg> Fiches
         </button>
@@ -804,6 +836,10 @@
     </div>
 
     <!-- ── Section Structure ── -->
+    <div id="secCours" style="display:none">
+        <div id="coursBody"></div>
+    </div>
+
     <div id="secStruct" style="display:none">
         <div class="pron-card">
             <span class="pron-pos" id="structStat"></span>
@@ -1876,8 +1912,8 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen',isStruct=mainTab==='structure';
-    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen||isStruct)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen',isStruct=mainTab==='structure',isCours=mainTab==='cours';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen||isStruct||isCours)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
@@ -1885,7 +1921,13 @@ function setTab(btn){
     document.getElementById('secPat').style.display=isPat?'':'none';
     document.getElementById('secListen').style.display=isListen?'':'none';
     document.getElementById('secStruct').style.display=isStruct?'':'none';
-    if(mainTab==='fiches')renderFlash();
+    document.getElementById('secCours').style.display=isCours?'':'none';
+    /* Cours = lecture : on masque les contrôles de session (cats, SRS, vitesse, barre de progression) */
+    document.getElementById('catRow').style.display=isCours?'none':'';
+    document.querySelectorAll('.ctrl-row').forEach(e=>e.style.display=isCours?'none':'');
+    ['.prog-label','.prog-bar'].forEach(s=>{const e=document.querySelector(s);if(e)e.style.display=isCours?'none':'';});
+    if(isCours){lesIdx=-1;renderCours();}
+    else if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
     else if(isTons)renderTons();
     else if(isPat)renderPat();
@@ -1901,7 +1943,8 @@ function reset(){
     flashIdx=0;flashFlipped=false;flashSearch='';
     const si=document.getElementById('searchIn');if(si)si.value='';
     pronIdx=0;
-    if(mainTab==='fiches')renderFlash();
+    if(mainTab==='cours')renderCours();
+    else if(mainTab==='fiches')renderFlash();
     else if(mainTab==='prononciation')renderPron();
     else if(mainTab==='tons')renderTons();
     else if(mainTab==='patterns'){patIdx=0;patSlot=0;renderPat();}
@@ -2451,7 +2494,7 @@ const PATTERNS=[
 function patFull(){const p=PATTERNS[patIdx],s=p.slots[patSlot];return p.vn.replace('___',s.vn);}
 function patListen(){speak(patFull());}
 function renderPat(){
-  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secListen','secCours','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
   document.getElementById('secPat').style.display='';
   if(patIdx>=PATTERNS.length)patIdx=0;
@@ -2567,7 +2610,7 @@ const STRUCT_DRILLS=[
 ];
 function structVn(d){return d.chunks.join(' ')+(d.q?' ?':'.');}
 function renderStruct(){
-    ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secListen','secCours','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
     const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
     document.getElementById('secStruct').style.display='';
     if(structIdx>=structDeck.length){structIdx=0;structDeck=shuf([...STRUCT_DRILLS]);}
@@ -2647,7 +2690,7 @@ function structNext(){
 function lisReplay(){const c=lisDeck[lisIdx];if(c)speak(c.vn);}
 function lisSlow(){const c=lisDeck[lisIdx];if(c)speak(c.vn,0.45);}
 function renderListen(){
-  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secCours','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
   document.getElementById('secListen').style.display='';
   if(!lisDeck.length)lisDeck=buildDeck();
@@ -2675,7 +2718,7 @@ function lisNext(){
   renderListen();
 }
 function renderTons(){
-  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secPat','secListen','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secPat','secListen','secCours','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
   document.getElementById('secTons').style.display='';
   const fam=TONESETS[toneFam];
@@ -2803,6 +2846,184 @@ function skipPhrase(){
     document.getElementById('phrasValTxt').textContent='Suivant';
     document.getElementById('phrasValIco').querySelector('use').setAttribute('href','#i-arrow-r');
     setTimeout(()=>speak(s.vn),300);
+}
+
+/* ══════════════════════════════
+   ── COURS (leçons EN → VN) ──
+   Liam apprend depuis l'anglais, pas depuis le français : toute la
+   leçon est rédigée EN → VN. Chaque paire est tapable (TTS), et chaque
+   leçon se termine par un drill de construction sur SA règle.
+══════════════════════════════ */
+function P(en,vn){return `<button class="les-pair" onclick="lesSpeak(this)"><span class="en">${en}</span><span class="vn">${vn}</span></button>`;}
+const LESSONS=[
+{n:1,title:"Demonstratives",sub:"this / that / these / those",drills:[['dem',"Build demonstrative sentences"]],html:`
+<h4>The core table</h4>
+<div class="les-tbl" style="grid-template-columns:.8fr 1fr 1fr 1fr">
+<span class="th"></span><span class="th">Singular (1)</span><span class="th">Plural (2+)</span><span class="th">Place</span>
+<span><b>Near you</b><br>Gần</span><span>this<br><span class="v">cái này</span></span><span>these<br><span class="v">những cái này</span></span><span>here<br><span class="v">ở đây</span></span>
+<span><b>Far from you</b><br>Xa</span><span>that<br><span class="v">cái đó / cái kia</span></span><span>those<br><span class="v">những cái đó</span></span><span>there<br><span class="v">ở đó / ở kia</span></span>
+</div>
+<div class="les-warn"><b>Usage note</b> — the handout treats <em>đó</em> and <em>kia</em> as interchangeable for "that". In real speech: <em>đó</em> = the one we're talking about, not far. <em>kia</em> = over there, visible, further away.</div>
+
+<h4>The word-order rule</h4>
+<div class="les-rule">The demonstrative goes <b>AFTER the noun</b>. Always.</div>
+<div class="les-tbl" style="grid-template-columns:1fr 1fr 1fr">
+<span class="th">English</span><span class="th">Vietnamese</span><span class="th">Word-for-word</span>
+<span>this pen</span><span class="v">cây bút này</span><span>pen-this</span>
+<span>that car</span><span class="v">chiếc ô tô kia</span><span>car-that</span>
+<span>this table</span><span class="v">cái bàn này</span><span>table-this</span>
+</div>
+<p>English puts it <b>before</b> ("this pen"), Vietnamese puts it <b>after</b> ("pen this"). Reversed — automation target #1.</p>
+
+<h4>Classifiers</h4>
+<p>The little tag before a noun. You can't skip it.</p>
+<div class="les-tbl" style="grid-template-columns:.5fr 1fr 1fr">
+<span class="th">Word</span><span class="th">Used for</span><span class="th">Example</span>
+<span class="v">cái</span><span>generic thing</span><span>cái bàn, cái túi</span>
+<span class="v">cây</span><span>long object</span><span>cây bút (pen)</span>
+<span class="v">chiếc</span><span>vehicle, single item</span><span>chiếc ô tô</span>
+<span class="v">quyển</span><span>book, notebook</span><span>quyển sách</span>
+</div>
+
+<h4>Plural: những</h4>
+<p><em>những</em> + classifier + demonstrative.</p>
+${P("these (things)","những cái này")}${P("those (things)","những cái đó")}
+
+<h4>The 4 sentence patterns</h4>
+<div class="les-tbl" style="grid-template-columns:1fr 1fr">
+<span class="th">Pattern</span><span class="th">English</span>
+<span class="v">Đây là + noun</span><span>This is + noun</span>
+<span class="v">Cái đó là + noun</span><span>That is + noun</span>
+<span class="v">Những cái này là + noun</span><span>These are + noun</span>
+<span class="v">Đây là cái gì?</span><span>What is this?</span>
+</div>
+${P("This is my pen.","Đây là cây bút của tôi.")}${P("That is an old chair.","Cái đó là ghế cũ.")}${P("This is my new table.","Đây là cái bàn mới của tôi.")}${P("What is this?","Đây là cái gì?")}${P("This pen is blue.","Cây bút này màu xanh dương.")}${P("That car is really fast.","Chiếc ô tô kia chạy nhanh thật.")}${P("Are these things expensive?","Những cái này có đắt không?")}${P("No, these are cheap but nice.","Không, những cái này rẻ nhưng đẹp.")}${P("Those are more expensive but very good.","Những cái đó đắt hơn nhưng rất tốt.")}
+
+<h4>here / there = place, not object</h4>
+${P("Come here.","Lại đây đi.")}${P("I am sitting here.","Tôi đang ngồi ở đây.")}${P("The shop is there.","Cửa hàng ở đó.")}${P("Look over there.","Nhìn đằng kia kìa.")}${P("I am here, near the door.","Tôi ở đây, gần cửa.")}${P("Yes, it is there, on the table.","Có, nó ở đó, trên bàn.")}${P("Can you bring it here?","Bạn mang nó lại đây được không?")}
+`},
+{n:2,title:"Question words",sub:"who / what / where / when / why / how / which",drills:[['wh',"Build questions"]],html:`
+<h4>The golden rule</h4>
+<div class="les-rule">The question word <b>stays where the answer would be</b>. It never moves to the front like in English.</div>
+<p><em>Bạn đi đến trường như thế nào?</em> — word-for-word: "You go to school <b>how</b>?" English fronts it, Vietnamese doesn't. Automation target #2.</p>
+
+<h4>The 7 words</h4>
+<div class="les-tbl" style="grid-template-columns:.7fr .6fr 1.3fr">
+<span class="th">Word</span><span class="th">Meaning</span><span class="th">Example</span>
+<span class="v">Ai</span><span>who</span><span>Ai đang ở đây?</span>
+<span class="v">gì / cái gì</span><span>what</span><span>Bạn đang làm gì ở đó?</span>
+<span class="v">ở đâu</span><span>where</span><span>Cái túi của bạn ở đâu?</span>
+<span class="v">khi nào</span><span>when</span><span>Bạn học tiếng Việt khi nào?</span>
+<span class="v">tại sao</span><span>why</span><span>Tại sao bạn học tiếng Việt?</span>
+<span class="v">như thế nào</span><span>how</span><span>Bạn đi đến trường như thế nào?</span>
+<span class="v">cái nào</span><span>which one</span><span>Bạn thích cái nào?</span>
+</div>
+
+<h4>The two bao nhiêu</h4>
+${P("How much is this? (price)","Cái này bao nhiêu tiền?")}${P("How many bags do you have? (quantity)","Bạn có bao nhiêu cái túi?")}
+
+<h4>Which + noun</h4>
+<p>The classifier comes back. <em>hay</em> = "or" inside a choice question.</p>
+${P("Which book?","quyển sách nào?")}${P("Which do you like, A or B?","Bạn thích cái nào, A hay B?")}${P("Between these and those, which do you choose?","Những cái này và những cái đó, bạn chọn cái nào?")}
+
+<h4>Full exchanges</h4>
+${P("Who is here?","Ai đang ở đây?")}${P("My friend is here.","Bạn tôi đang ở đây.")}${P("What are you doing there?","Bạn đang làm gì ở đó?")}${P("I am reading a book.","Tôi đang đọc sách.")}${P("Where is your bag?","Cái túi của bạn ở đâu?")}${P("It is there, under the table.","Nó ở đó, dưới bàn.")}${P("Where are you?","Bạn đang ở đâu?")}${P("When do you study Vietnamese?","Bạn học tiếng Việt khi nào?")}${P("I study in the evening.","Tôi học vào buổi tối.")}${P("Why do you study Vietnamese?","Tại sao bạn học tiếng Việt?")}${P("Because I like Vietnam, so I want to learn.","Vì tôi thích Việt Nam nên tôi muốn học.")}${P("Do you study here or there?","Bạn học ở đây hay ở đó?")}${P("I study here because it is quiet here.","Tôi học ở đây vì ở đây yên tĩnh.")}${P("How do you go to school?","Bạn đi đến trường như thế nào?")}${P("I go by motorbike because my house is far.","Tôi đi bằng xe máy vì nhà tôi xa.")}${P("How do you learn Vietnamese?","Bạn học tiếng Việt như thế nào?")}${P("I learn by listening and speaking every day.","Tôi học bằng cách nghe và nói mỗi ngày.")}${P("How are you?","Bạn có khỏe không?")}${P("I'm fine, but yesterday I was a little tired.","Tôi khỏe, nhưng hôm qua tôi hơi mệt.")}${P("This is cheap, only 50,000 VND.","Cái này rẻ, chỉ 50 nghìn thôi.")}
+`},
+{n:3,title:"Linking words",sub:"và · nhưng · vì nên · rồi · chưa · lại",drills:[['cause',"Drill vì … nên …"],['done',"Drill rồi / chưa"],['again',"Drill lại"],['seq',"Drill trước khi / sau đó"]],html:`
+<h4>The list</h4>
+<div class="les-tbl" style="grid-template-columns:.8fr 1.2fr">
+<span class="th">Vietnamese</span><span class="th">English</span>
+<span class="v">và</span><span>and — adds an idea</span>
+<span class="v">nhưng</span><span>but — opposite idea</span>
+<span class="v">vì</span><span>because — reason</span>
+<span class="v">nên</span><span>so — result</span>
+<span class="v">rồi</span><span>already</span>
+<span class="v">chưa</span><span>yet / not yet</span>
+<span class="v">lại</span><span>again</span>
+<span class="v">sau đó</span><span>after that</span>
+<span class="v">trước khi</span><span>before</span>
+</div>
+
+<h4>Vì … nên … — where English misleads you</h4>
+<div class="les-rule">In English you <b>can't</b> use "because" and "so" in the same sentence. In Vietnamese you <b>must</b> use them together.<br><br>Vì [reason] <b>nên</b> [result]</div>
+${P("Because I am tired, so I go to bed early.","Vì tôi mệt nên tôi ngủ sớm.")}${P("Because it's raining, so I stay home.","Vì trời mưa nên tôi ở nhà.")}${P("Because I forgot, so I got completely wet.","Vì tôi quên nên tôi ướt hết.")}${P("Because I was very tired, I didn't clean carefully.","Vì tôi rất mệt nên tôi không dọn kỹ.")}${P("Because that lesson is important, I want to review it.","Vì bài đó quan trọng nên tôi muốn học lại.")}
+<p><em>vì</em> = reason · <em>nên</em> = result. Automation target #3.</p>
+
+<h4>rồi / chưa — position decides the meaning</h4>
+<div class="les-tbl" style="grid-template-columns:.9fr .8fr 1fr">
+<span class="th">Position</span><span class="th">Meaning</span><span class="th">Example</span>
+<span><b>rồi</b> at the end</span><span>already done</span><span class="v">Tôi ăn rồi.</span>
+<span><b>chưa</b> at the end</span><span>"…yet?" question</span><span class="v">Bạn ăn cơm chưa?</span>
+<span><b>chưa</b> before the verb</span><span>not yet</span><span class="v">Tôi chưa thấy.</span>
+</div>
+${P("Have you cleaned your room yet?","Bạn dọn phòng chưa?")}${P("I cleaned it already, but the room is still a little messy.","Tôi dọn rồi, nhưng phòng vẫn hơi bừa bộn.")}${P("I already looked, but I haven't found it yet.","Tôi tìm rồi nhưng chưa thấy.")}${P("Did you go to the market this morning yet?","Sáng nay bạn đi chợ chưa?")}${P("I already went because the house ran out of food.","Tôi đi rồi vì nhà hết thức ăn.")}
+
+<h4>lại — the position flips the meaning</h4>
+<div class="les-tbl" style="grid-template-columns:.8fr 1fr 1fr">
+<span class="th">Position</span><span class="th">Meaning</span><span class="th">Example</span>
+<span><b>before</b> the verb</span><span>it happened again <b>to me</b> (annoying)</span><span class="v">Tôi lại quên.</span>
+<span><b>after</b> the verb</span><span>I redo it <b>on purpose</b></span><span class="v">Tôi muốn học lại.</span>
+</div>
+${P("I'm a little sad because I forgot my key again.","Tôi hơi buồn vì tôi lại quên chìa khóa.")}${P("It's okay, stay calm and look again.","Không sao, bạn bình tĩnh và tìm lại nhé.")}${P("Tomorrow the price may be high again.","Ngày mai giá có thể lại cao.")}${P("I want to review the lesson.","Tôi muốn ôn bài.")}
+
+<h4>trước khi / sau đó</h4>
+<p>They go <b>before</b> the action they date.</p>
+${P("I did it already before going to bed.","Tôi làm rồi trước khi đi ngủ.")}${P("After that, I watched TV, but I went to sleep early.","Sau đó tôi xem TV, nhưng tôi ngủ sớm.")}${P("I bought vegetables and meat, and after that I bought fruit.","Tôi mua rau và thịt, sau đó tôi mua trái cây.")}
+
+<h4>Quick compare (from the handout)</h4>
+<div class="les-tbl" style="grid-template-columns:.6fr 1fr">
+<span class="th">Word</span><span class="th">= </span>
+<span class="v">vì</span><span>reason</span><span class="v">nên</span><span>result</span><span class="v">nhưng</span><span>opposite idea</span><span class="v">và</span><span>add idea</span><span class="v">rồi</span><span>already</span><span class="v">chưa</span><span>not yet</span><span class="v">lại</span><span>again</span>
+</div>
+`},
+{n:4,title:"Vocabulary",sub:"the words from the 29/07 notebook",drills:[],html:`
+<h4>Weather &amp; mishap</h4>
+${P("sky / the &quot;it&quot; of weather","trời")}${P("strong wind","gió mạnh")}${P("raincoat","áo mưa")}${P("wet","ướt")}${P("cold","lạnh")}${P("It rained heavily and it was windy.","Trời mưa rất to và gió mạnh.")}
+
+<h4>House</h4>
+${P("to clean / tidy up","dọn")}${P("messy","bừa bộn")}${P("dirty","bẩn")}${P("room","phòng")}${P("carefully","kỹ")}${P("still","vẫn")}
+
+<h4>Market</h4>
+${P("market","chợ")}${P("food","thức ăn")}${P("to run out of","hết")}${P("vegetables","rau")}${P("fruit","trái cây")}${P("price","giá")}${P("high","cao")}${P("expensive","đắt")}${P("cheap","rẻ")}${P("This price is way too expensive!","Giá này đắt quá!")}
+
+<h4>School</h4>
+${P("homework","bài tập")}${P("to review the lesson","ôn bài")}${P("the old lesson","bài cũ")}${P("important","quan trọng")}${P("early","sớm")}${P("far","xa")}${P("quiet","yên tĩnh")}${P("motorbike","xe máy")}${P("new","mới")}${P("old","cũ")}
+
+<h4>Feelings &amp; objects</h4>
+${P("sad","buồn")}${P("happy","vui")}${P("to forget","quên")}${P("to look for","tìm")}${P("to see / to find","thấy")}${P("key","chìa khóa")}${P("stay calm","bình tĩnh")}${P("be careful","cẩn thận")}${P("it","nó")}${P("a text message","tin nhắn")}${P("movie theater","rạp chiếu phim")}
+
+<h4>Two useful frames</h4>
+<div class="les-rule"><em>chỉ … thôi</em> = only &nbsp;·&nbsp; <em>… quá!</em> = too / so much</div>
+${P("This is cheap, only 50,000 VND.","Cái này rẻ, chỉ 50 nghìn thôi.")}${P("This price is too expensive!","Giá này đắt quá!")}${P("You are important to me.","Bạn quan trọng với tôi.")}${P("Tomorrow we will go watch a movie at the theater.","Ngày mai chúng ta sẽ đi xem phim ở rạp chiếu phim.")}${P("I will send you a text message.","Tôi sẽ gửi tin nhắn cho bạn.")}
+`}
+];
+let lesIdx=-1;
+function lesSpeak(el){const v=el.querySelector('.vn');speak((v||el).textContent);}
+function openLesson(i){lesIdx=i;renderCours();window.scrollTo({top:0});}
+function backLessons(){lesIdx=-1;renderCours();window.scrollTo({top:0});}
+function drillRule(r){
+    const btn=document.querySelector('[data-tab="structure"]');
+    if(btn)setTab(btn);
+    const d=STRUCT_DRILLS.filter(x=>x.rule===r);
+    if(d.length){structDeck=shuf(d);structIdx=0;renderStruct();}
+    window.scrollTo({top:0});
+}
+function renderCours(){
+    ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secListen','secStruct','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+    document.getElementById('secCours').style.display='';
+    const b=document.getElementById('coursBody');
+    if(lesIdx<0){
+        b.innerHTML='<div class="les-list">'+LESSONS.map((l,i)=>
+            `<button class="les-card" onclick="openLesson(${i})"><span class="les-n">${l.n}</span><span><h3>${l.title}</h3><p>${l.sub}</p></span></button>`
+        ).join('')+'</div>';
+    } else {
+        const l=LESSONS[lesIdx];
+        const drills=l.drills.length?'<div class="les-drill"><span class="lbl">Now build it yourself</span>'+
+            l.drills.map(d=>`<button class="btn btn-p" onclick="drillRule('${d[0]}')"><svg class="ico ico-sm"><use href="#i-blocks"/></svg><span>${d[1]}</span></button>`).join('')+'</div>':'';
+        b.innerHTML=`<div class="les-nav"><button class="btn btn-o" onclick="backLessons()"><svg class="ico ico-sm"><use href="#i-arrow-l"/></svg><span>Leçons</span></button></div>`+
+            `<div class="les-doc"><h3>${l.n}. ${l.title}</h3>${l.html}${drills}</div>`;
+    }
 }
 
 /* ── STATS ── */
