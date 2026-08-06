@@ -199,6 +199,10 @@
         .les-doc em{color:#a78bfa;font-style:normal;font-weight:700;}
         .les-rule{padding:12px 14px;background:rgba(81,47,235,.12);border-left:3px solid var(--pl);border-radius:0 10px 10px 0;font-size:.87rem;font-weight:600;margin:12px 0;color:var(--text);line-height:1.55;}
         .les-warn{padding:11px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.22);border-radius:10px;font-size:.8rem;color:var(--muted);margin:11px 0;line-height:1.55;}
+        .les-sec{margin:22px 2px 10px;}
+        .les-sec:first-child{margin-top:4px;}
+        .les-sec h2{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--p);}
+        .les-sec p{font-size:.76rem;color:var(--muted);margin-top:2px;}
         .les-pair{display:block;width:100%;text-align:left;font-family:inherit;background:var(--s1);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:background var(--t);}
         .les-pair:active{background:var(--s2);}
         .les-pair .en{display:block;font-size:.76rem;color:var(--muted);margin-bottom:2px;}
@@ -845,7 +849,7 @@
             <span class="pron-pos" id="structStat"></span>
             <div class="pron-label">Reconstruis la phrase dans le bon ordre</div>
             <div class="struct-tag" id="structTag"></div>
-            <div class="pron-word" style="font-size:1.05rem;font-weight:700" id="structFr">Je mange du riz.</div>
+            <div class="pron-word" style="font-size:1.05rem;font-weight:700" id="structFr">I eat rice.</div>
             <div class="struct-slots" id="structSlots"></div>
             <div class="struct-bank" id="structBank"></div>
         </div>
@@ -2552,61 +2556,112 @@ const STRUCT_RULES={
     again:{tag:"Répétition",tip:"« lại » AVANT le verbe = ça recommence malgré moi (Tôi lại quên). APRÈS le verbe = je le refais exprès (học lại)."},
 };
 const STRUCT_DRILLS=[
-    {chunks:["Tôi","ăn","cơm"],fr:"Je mange du riz.",rule:'svo'},
-    {chunks:["Tôi","uống","cà phê"],fr:"Je bois du café.",rule:'svo'},
-    {chunks:["Tôi","mệt"],fr:"Je suis fatigué.",rule:'adj'},
-    {chunks:["Cà phê","nóng"],fr:"Le café est chaud.",rule:'adj'},
-    {chunks:["Cái này","đẹp"],fr:"C'est beau.",rule:'adj'},
-    {chunks:["Tôi","không","hiểu"],fr:"Je ne comprends pas.",rule:'neg'},
-    {chunks:["Tôi","không","biết"],fr:"Je ne sais pas.",rule:'neg'},
-    {chunks:["Cái này","không","đắt"],fr:"Ce n'est pas cher.",rule:'neg'},
-    {chunks:["Tôi","đang","học"],fr:"Je suis en train d'étudier.",rule:'time'},
-    {chunks:["Tôi","sẽ","đi"],fr:"Je vais partir.",rule:'time'},
-    {chunks:["Tôi","đã","ăn","rồi"],fr:"J'ai déjà mangé.",rule:'time'},
-    {chunks:["Bạn","có","khỏe","không"],fr:"Tu vas bien ?",rule:'yn',q:true},
-    {chunks:["Bạn","có","rảnh","không"],fr:"Tu es libre ?",rule:'yn',q:true},
-    {chunks:["Bạn","tên là","gì"],fr:"Comment tu t'appelles ?",rule:'wh',q:true},
-    {chunks:["Bạn","đi","đâu"],fr:"Tu vas où ?",rule:'wh',q:true},
-    {chunks:["Cái này","giá","bao nhiêu"],fr:"Combien coûte ceci ?",rule:'wh',q:true},
-    {chunks:["Tôi","có","hai","con","mèo"],fr:"J'ai deux chats.",rule:'clf'},
-    {chunks:["Cho tôi","một","cái","bánh"],fr:"Donnez-moi un gâteau.",rule:'clf'},
-    {chunks:["Đây là","cà phê","của","tôi"],fr:"Voici mon café.",rule:'poss'},
-    {chunks:["Bạn","của","tôi","rất","tốt"],fr:"Mon ami est très gentil.",rule:'poss'},
-    {chunks:["Cái này","rẻ","hơn"],fr:"Celui-ci est moins cher.",rule:'comp'},
-    {chunks:["Cà phê","ngon","hơn","trà"],fr:"Le café est meilleur que le thé.",rule:'comp'},
-    {chunks:["Ngày mai","tôi","đi","biển"],fr:"Demain je vais à la plage.",rule:'topic'},
-    {chunks:["Hôm nay","tôi","rảnh"],fr:"Aujourd'hui je suis libre.",rule:'topic'},
+    {chunks:["Tôi","ăn","cơm"],fr:"Je mange du riz.",en:"I eat rice.",rule:'svo'},
+    {chunks:["Tôi","uống","cà phê"],fr:"Je bois du café.",en:"I drink coffee.",rule:'svo'},
+    {chunks:["Tôi","mệt"],fr:"Je suis fatigué.",en:"I am tired.",rule:'adj'},
+    {chunks:["Cà phê","nóng"],fr:"Le café est chaud.",en:"The coffee is hot.",rule:'adj'},
+    {chunks:["Cái này","đẹp"],fr:"C'est beau.",en:"This is beautiful.",rule:'adj'},
+    {chunks:["Tôi","không","hiểu"],fr:"Je ne comprends pas.",en:"I don't understand.",rule:'neg'},
+    {chunks:["Tôi","không","biết"],fr:"Je ne sais pas.",en:"I don't know.",rule:'neg'},
+    {chunks:["Cái này","không","đắt"],fr:"Ce n'est pas cher.",en:"This is not expensive.",rule:'neg'},
+    {chunks:["Tôi","đang","học"],fr:"Je suis en train d'étudier.",en:"I am studying.",rule:'time'},
+    {chunks:["Tôi","sẽ","đi"],fr:"Je vais partir.",en:"I will go.",rule:'time'},
+    {chunks:["Tôi","đã","ăn","rồi"],fr:"J'ai déjà mangé.",en:"I already ate.",rule:'time'},
+    {chunks:["Bạn","có","khỏe","không"],fr:"Tu vas bien ?",en:"Are you well?",rule:'yn',q:true},
+    {chunks:["Bạn","có","rảnh","không"],fr:"Tu es libre ?",en:"Are you free?",rule:'yn',q:true},
+    {chunks:["Bạn","tên là","gì"],fr:"Comment tu t'appelles ?",en:"What is your name?",rule:'wh',q:true},
+    {chunks:["Bạn","đi","đâu"],fr:"Tu vas où ?",en:"Where are you going?",rule:'wh',q:true},
+    {chunks:["Cái này","giá","bao nhiêu"],fr:"Combien coûte ceci ?",en:"How much is this?",rule:'wh',q:true},
+    {chunks:["Tôi","có","hai","con","mèo"],fr:"J'ai deux chats.",en:"I have two cats.",rule:'clf'},
+    {chunks:["Cho tôi","một","cái","bánh"],fr:"Donnez-moi un gâteau.",en:"Give me one cake.",rule:'clf'},
+    {chunks:["Đây là","cà phê","của","tôi"],fr:"Voici mon café.",en:"This is my coffee.",rule:'poss'},
+    {chunks:["Bạn","của","tôi","rất","tốt"],fr:"Mon ami est très gentil.",en:"My friend is very nice.",rule:'poss'},
+    {chunks:["Cái này","rẻ","hơn"],fr:"Celui-ci est moins cher.",en:"This one is cheaper.",rule:'comp'},
+    {chunks:["Cà phê","ngon","hơn","trà"],fr:"Le café est meilleur que le thé.",en:"Coffee is better than tea.",rule:'comp'},
+    {chunks:["Ngày mai","tôi","đi","biển"],fr:"Demain je vais à la plage.",en:"Tomorrow I go to the beach.",rule:'topic'},
+    {chunks:["Hôm nay","tôi","rảnh"],fr:"Aujourd'hui je suis libre.",en:"Today I am free.",rule:'topic'},
     /* ── Cours 29/07 ── */
-    {chunks:["Đây là","cây bút","của tôi"],fr:"Ceci est mon stylo.",rule:'dem'},
-    {chunks:["Cái đó là","ghế","cũ"],fr:"Cela est une vieille chaise.",rule:'dem'},
-    {chunks:["Cây bút","này","màu xanh dương"],fr:"Ce stylo est bleu.",rule:'dem'},
-    {chunks:["Chiếc ô tô","kia","chạy","nhanh"],fr:"Cette voiture-là roule vite.",rule:'dem'},
-    {chunks:["Đây là","cái bàn","mới","của tôi"],fr:"Ceci est ma nouvelle table.",rule:'dem'},
-    {chunks:["Những cái này","rẻ","nhưng","đẹp"],fr:"Ces choses sont bon marché mais jolies.",rule:'dem'},
-    {chunks:["Đây là","cái gì"],fr:"Qu'est-ce que c'est ?",rule:'dem',q:true},
-    {chunks:["Vì","tôi","mệt","nên","tôi","ngủ sớm"],fr:"Parce que j'étais fatigué, je me suis couché tôt.",rule:'cause'},
-    {chunks:["Vì","trời mưa","nên","tôi","ở nhà"],fr:"Comme il pleut, je reste à la maison.",rule:'cause'},
-    {chunks:["Vì","tôi","quên","nên","tôi","ướt hết"],fr:"Parce que j'ai oublié, j'ai été trempé.",rule:'cause'},
-    {chunks:["Tôi","học","ở đây","vì","ở đây","yên tĩnh"],fr:"J'étudie ici parce que c'est calme ici.",rule:'cause'},
-    {chunks:["Tôi","làm","rồi","trước khi","đi ngủ"],fr:"Je les ai faits avant d'aller dormir.",rule:'seq'},
-    {chunks:["Trước khi","đi","tôi","ăn","cơm"],fr:"Avant de partir, je mange.",rule:'seq'},
-    {chunks:["Sau đó","tôi","xem","TV"],fr:"Ensuite j'ai regardé la télé.",rule:'seq'},
-    {chunks:["Tôi","mua","rau","sau đó","tôi","mua","trái cây"],fr:"J'achète des légumes, ensuite des fruits.",rule:'seq'},
-    {chunks:["Tôi","dọn","rồi"],fr:"J'ai déjà rangé.",rule:'done'},
-    {chunks:["Bạn","ăn cơm","chưa"],fr:"Tu as déjà mangé ?",rule:'done',q:true},
-    {chunks:["Bạn","dọn","phòng","chưa"],fr:"Tu as déjà rangé la chambre ?",rule:'done',q:true},
-    {chunks:["Tôi","tìm","rồi","nhưng","chưa","thấy"],fr:"J'ai cherché mais je n'ai pas encore trouvé.",rule:'done'},
-    {chunks:["Tôi","lại","quên","chìa khóa"],fr:"J'ai encore oublié ma clé.",rule:'again'},
-    {chunks:["Tôi","muốn","học","lại"],fr:"Je veux réviser la leçon.",rule:'again'},
-    {chunks:["Hôm nay","trời","lại","mưa"],fr:"Aujourd'hui il pleut encore.",rule:'again'},
-    {chunks:["Bạn","học","tiếng Việt","khi nào"],fr:"Quand étudies-tu le vietnamien ?",rule:'wh',q:true},
-    {chunks:["Tại sao","bạn","học","tiếng Việt"],fr:"Pourquoi apprends-tu le vietnamien ?",rule:'wh',q:true},
-    {chunks:["Bạn","đi đến","trường","như thế nào"],fr:"Comment vas-tu à l'école ?",rule:'wh',q:true},
-    {chunks:["Cái này","bao nhiêu","tiền"],fr:"Ça coûte combien ?",rule:'wh',q:true},
-    {chunks:["Bạn","thích","cái nào"],fr:"Lequel préfères-tu ?",rule:'wh',q:true},
-    {chunks:["Bạn","đang","làm gì","ở đó"],fr:"Que fais-tu là-bas ?",rule:'wh',q:true},
-    {chunks:["Cái túi","của bạn","ở đâu"],fr:"Où est ton sac ?",rule:'wh',q:true},
-    {chunks:["Nó","ở đó","trên bàn"],fr:"Il est là, sur la table.",rule:'topic'},
+    {chunks:["Đây là","cây bút","của tôi"],fr:"Ceci est mon stylo.",en:"This is my pen.",rule:'dem'},
+    {chunks:["Cái đó là","ghế","cũ"],fr:"Cela est une vieille chaise.",en:"That is an old chair.",rule:'dem'},
+    {chunks:["Cây bút","này","màu xanh dương"],fr:"Ce stylo est bleu.",en:"This pen is blue.",rule:'dem'},
+    {chunks:["Chiếc ô tô","kia","chạy","nhanh"],fr:"Cette voiture-là roule vite.",en:"That car runs fast.",rule:'dem'},
+    {chunks:["Đây là","cái bàn","mới","của tôi"],fr:"Ceci est ma nouvelle table.",en:"This is my new table.",rule:'dem'},
+    {chunks:["Những cái này","rẻ","nhưng","đẹp"],fr:"Ces choses sont bon marché mais jolies.",en:"These are cheap but nice.",rule:'dem'},
+    {chunks:["Đây là","cái gì"],fr:"Qu'est-ce que c'est ?",en:"What is this?",rule:'dem',q:true},
+    {chunks:["Vì","tôi","mệt","nên","tôi","ngủ sớm"],fr:"Parce que j'étais fatigué, je me suis couché tôt.",en:"Because I was tired, I went to bed early.",rule:'cause'},
+    {chunks:["Vì","trời mưa","nên","tôi","ở nhà"],fr:"Comme il pleut, je reste à la maison.",en:"Because it rains, I stay home.",rule:'cause'},
+    {chunks:["Vì","tôi","quên","nên","tôi","ướt hết"],fr:"Parce que j'ai oublié, j'ai été trempé.",en:"Because I forgot, I got all wet.",rule:'cause'},
+    {chunks:["Tôi","học","ở đây","vì","ở đây","yên tĩnh"],fr:"J'étudie ici parce que c'est calme ici.",en:"I study here because it is quiet here.",rule:'cause'},
+    {chunks:["Tôi","làm","rồi","trước khi","đi ngủ"],fr:"Je les ai faits avant d'aller dormir.",en:"I did it before going to sleep.",rule:'seq'},
+    {chunks:["Trước khi","đi","tôi","ăn","cơm"],fr:"Avant de partir, je mange.",en:"Before leaving, I eat.",rule:'seq'},
+    {chunks:["Sau đó","tôi","xem","TV"],fr:"Ensuite j'ai regardé la télé.",en:"After that I watched TV.",rule:'seq'},
+    {chunks:["Tôi","mua","rau","sau đó","tôi","mua","trái cây"],fr:"J'achète des légumes, ensuite des fruits.",en:"I buy vegetables, after that I buy fruit.",rule:'seq'},
+    {chunks:["Tôi","dọn","rồi"],fr:"J'ai déjà rangé.",en:"I already tidied up.",rule:'done'},
+    {chunks:["Bạn","ăn cơm","chưa"],fr:"Tu as déjà mangé ?",en:"Have you eaten yet?",rule:'done',q:true},
+    {chunks:["Bạn","dọn","phòng","chưa"],fr:"Tu as déjà rangé la chambre ?",en:"Have you tidied the room yet?",rule:'done',q:true},
+    {chunks:["Tôi","tìm","rồi","nhưng","chưa","thấy"],fr:"J'ai cherché mais je n'ai pas encore trouvé.",en:"I looked but I haven't found it yet.",rule:'done'},
+    {chunks:["Tôi","lại","quên","chìa khóa"],fr:"J'ai encore oublié ma clé.",en:"I forgot my key again.",rule:'again'},
+    {chunks:["Tôi","muốn","học","lại"],fr:"Je veux réviser la leçon.",en:"I want to study it again.",rule:'again'},
+    {chunks:["Hôm nay","trời","lại","mưa"],fr:"Aujourd'hui il pleut encore.",en:"Today it is raining again.",rule:'again'},
+    {chunks:["Bạn","học","tiếng Việt","khi nào"],fr:"Quand étudies-tu le vietnamien ?",en:"When do you study Vietnamese?",rule:'wh',q:true},
+    {chunks:["Tại sao","bạn","học","tiếng Việt"],fr:"Pourquoi apprends-tu le vietnamien ?",en:"Why do you study Vietnamese?",rule:'wh',q:true},
+    {chunks:["Bạn","đi đến","trường","như thế nào"],fr:"Comment vas-tu à l'école ?",en:"How do you go to school?",rule:'wh',q:true},
+    {chunks:["Cái này","bao nhiêu","tiền"],fr:"Ça coûte combien ?",en:"How much money is this?",rule:'wh',q:true},
+    {chunks:["Bạn","thích","cái nào"],fr:"Lequel préfères-tu ?",en:"Which one do you like?",rule:'wh',q:true},
+    {chunks:["Bạn","đang","làm gì","ở đó"],fr:"Que fais-tu là-bas ?",en:"What are you doing there?",rule:'wh',q:true},
+    {chunks:["Cái túi","của bạn","ở đâu"],fr:"Où est ton sac ?",en:"Where is your bag?",rule:'wh',q:true},
+    {chunks:["Nó","ở đó","trên bàn"],fr:"Il est là, sur la table.",en:"It is there, on the table.",rule:'topic'},
+    /* ── Équilibrage 06/08 : chaque règle a de quoi s'entraîner ── */
+    {chunks:["Tôi","học","tiếng Việt"],fr:"J'apprends le vietnamien.",en:"I study Vietnamese.",rule:'svo'},
+    {chunks:["Tôi","mua","một","quyển sách"],fr:"J'achète un livre.",en:"I buy a book.",rule:'svo'},
+    {chunks:["Chúng tôi","xem","phim"],fr:"Nous regardons un film.",en:"We watch a movie.",rule:'svo'},
+    {chunks:["Tôi","là","sinh viên"],fr:"Je suis étudiant.",en:"I am a student.",rule:'svo'},
+    {chunks:["Cô ấy","rất","tốt"],fr:"Elle est très gentille.",en:"She is very nice.",rule:'adj'},
+    {chunks:["Phở","này","ngon","quá"],fr:"Ce phở est trop bon.",en:"This pho is so delicious!",rule:'adj'},
+    {chunks:["Hôm nay","trời","nóng"],fr:"Aujourd'hui il fait chaud.",en:"Today the weather is hot.",rule:'adj'},
+    {chunks:["Phòng","này","hơi","nhỏ"],fr:"Cette chambre est un peu petite.",en:"This room is a little small.",rule:'adj'},
+    {chunks:["Tôi","không","muốn","đi"],fr:"Je ne veux pas partir.",en:"I don't want to go.",rule:'neg'},
+    {chunks:["Tôi","không","mệt"],fr:"Je ne suis pas fatigué.",en:"I am not tired.",rule:'neg'},
+    {chunks:["Tôi","không phải là","giáo viên"],fr:"Je ne suis pas professeur.",en:"I am not a teacher.",rule:'neg'},
+    {chunks:["Tôi","chưa","ăn"],fr:"Je n'ai pas encore mangé.",en:"I haven't eaten yet.",rule:'neg'},
+    {chunks:["Cái này","không phải là","túi","của tôi"],fr:"Ce n'est pas mon sac.",en:"This is not my bag.",rule:'neg'},
+    {chunks:["Tôi","đang","làm việc"],fr:"Je suis en train de travailler.",en:"I am working.",rule:'time'},
+    {chunks:["Ngày mai","tôi","sẽ","gọi","cho bạn"],fr:"Demain je t'appellerai.",en:"Tomorrow I will call you.",rule:'time'},
+    {chunks:["Tôi","đã","gặp","cô ấy"],fr:"J'ai rencontré cette femme.",en:"I met her.",rule:'time'},
+    {chunks:["Chúng tôi","sẽ","đi","Hà Nội"],fr:"Nous irons à Hanoï.",en:"We will go to Hanoi.",rule:'time'},
+    {chunks:["Bạn","có","cà phê","không"],fr:"Vous avez du café ?",en:"Do you have coffee?",rule:'yn',q:true},
+    {chunks:["Cái này","có","đắt","không"],fr:"C'est cher ?",en:"Is this expensive?",rule:'yn',q:true},
+    {chunks:["Bạn","có","hiểu","không"],fr:"Tu comprends ?",en:"Do you understand?",rule:'yn',q:true},
+    {chunks:["Tôi","trả","bằng thẻ","được không"],fr:"Je peux payer par carte ?",en:"Can I pay by card?",rule:'yn',q:true},
+    {chunks:["Bạn","là","người Việt Nam","phải không"],fr:"Tu es vietnamien, non ?",en:"You are Vietnamese, right?",rule:'yn',q:true},
+    {chunks:["Cho tôi","hai","ly","cà phê"],fr:"Deux cafés, s'il vous plaît.",en:"Give me two coffees.",rule:'clf'},
+    {chunks:["Tôi","có","ba","quyển","sách"],fr:"J'ai trois livres.",en:"I have three books.",rule:'clf'},
+    {chunks:["Cho tôi","một","tô","phở"],fr:"Un bol de phở.",en:"Give me one bowl of pho.",rule:'clf'},
+    {chunks:["Có","bốn","người","ở đây"],fr:"Il y a quatre personnes ici.",en:"There are four people here.",rule:'clf'},
+    {chunks:["Tôi","muốn","mua","chiếc","xe máy","này"],fr:"Je veux acheter cette moto.",en:"I want to buy this motorbike.",rule:'clf'},
+    {chunks:["Cây bút","của tôi","màu đen"],fr:"Mon stylo est noir.",en:"My pen is black.",rule:'poss'},
+    {chunks:["Nhà","của","anh ấy","rất","đẹp"],fr:"Sa maison est très belle.",en:"His house is very beautiful.",rule:'poss'},
+    {chunks:["Đây là","gia đình","của tôi"],fr:"Voici ma famille.",en:"This is my family.",rule:'poss'},
+    {chunks:["Tên","của bạn","là gì"],fr:"Quel est ton nom ?",en:"What is your name?",rule:'poss',q:true},
+    {chunks:["Cái này","đắt","hơn","cái kia"],fr:"Celui-ci est plus cher que celui-là.",en:"This one is more expensive than that one.",rule:'comp'},
+    {chunks:["Hôm nay","nóng","hơn","hôm qua"],fr:"Aujourd'hui il fait plus chaud qu'hier.",en:"Today is hotter than yesterday.",rule:'comp'},
+    {chunks:["Tôi","thích","cái này","nhất"],fr:"Je préfère celui-ci.",en:"I like this one the most.",rule:'comp'},
+    {chunks:["Phở","ngon","nhất"],fr:"Le phở est le meilleur.",en:"Pho is the most delicious.",rule:'comp'},
+    {chunks:["Tôi","không","cao","bằng","bạn"],fr:"Je ne suis pas aussi grand que toi.",en:"I am not as tall as you.",rule:'comp'},
+    {chunks:["Ở nhà","tôi","học","tiếng Việt"],fr:"À la maison, j'apprends le vietnamien.",en:"At home, I study Vietnamese.",rule:'topic'},
+    {chunks:["Tối nay","tôi","đi","ăn","với","bạn"],fr:"Ce soir je sors manger avec un ami.",en:"Tonight I go eat with a friend.",rule:'topic'},
+    {chunks:["Ngày mai","tôi","sẽ","ăn","phở","ở","nhà hàng"],fr:"Demain je mangerai du phở au restaurant.",en:"Tomorrow I will eat pho at the restaurant.",rule:'topic'},
+    {chunks:["Tôi","ở","Hà Nội"],fr:"J'habite à Hanoï.",en:"I live in Hanoi.",rule:'topic'},
+    {chunks:["Vì","trời","nóng","nên","tôi","uống","nước"],fr:"Comme il fait chaud, je bois de l'eau.",en:"Because it is hot, I drink water.",rule:'cause'},
+    {chunks:["Vì","đắt quá","nên","tôi","không","mua"],fr:"Comme c'était trop cher, je n'ai pas acheté.",en:"Because it was too expensive, I didn't buy it.",rule:'cause'},
+    {chunks:["Trước khi","ăn","tôi","rửa tay"],fr:"Avant de manger, je me lave les mains.",en:"Before eating, I wash my hands.",rule:'seq'},
+    {chunks:["Sau đó","chúng tôi","đi","về nhà"],fr:"Ensuite nous sommes rentrés.",en:"After that we went home.",rule:'seq'},
+    {chunks:["Tôi","gọi","cho bạn","rồi"],fr:"Je t'ai déjà appelé.",en:"I already called you.",rule:'done'},
+    {chunks:["Bạn","đi","chưa"],fr:"Tu es déjà parti ?",en:"Have you left yet?",rule:'done',q:true},
+    {chunks:["Tôi","lại","đến","muộn"],fr:"Je suis encore arrivé en retard.",en:"I came late again.",rule:'again'},
+    {chunks:["Bạn","nói","lại","được không"],fr:"Tu peux répéter ?",en:"Can you say it again?",rule:'again',q:true},
+    {chunks:["Ai","là","giáo viên","của bạn"],fr:"Qui est ton professeur ?",en:"Who is your teacher?",rule:'wh',q:true},
+    {chunks:["Nhà vệ sinh","ở đâu"],fr:"Où sont les toilettes ?",en:"Where is the toilet?",rule:'wh',q:true},
 ];
 function structVn(d){return d.chunks.join(' ')+(d.q?' ?':'.');}
 function renderStruct(){
@@ -2618,7 +2673,7 @@ function renderStruct(){
     structAnswered=false;structPicked=[];
     const rule=STRUCT_RULES[d.rule];
     document.getElementById('structTag').textContent=rule.tag;
-    document.getElementById('structFr').textContent=d.fr;
+    document.getElementById('structFr').textContent=d.en||d.fr;
     document.getElementById('structStat').textContent=(structIdx+1)+' / '+structDeck.length;
     document.getElementById('structReveal').style.display='none';
     document.getElementById('structCheckBtn').disabled=false;
@@ -2856,7 +2911,7 @@ function skipPhrase(){
 ══════════════════════════════ */
 function P(en,vn){return `<button class="les-pair" onclick="lesSpeak(this)"><span class="en">${en}</span><span class="vn">${vn}</span></button>`;}
 const LESSONS=[
-{n:1,title:"Demonstratives",sub:"this / that / these / those",drills:[['dem',"Build demonstrative sentences"]],html:`
+{sec:'Grammar',ord:60,title:"Demonstratives",sub:"this / that / these / those",drills:[['dem',"Build demonstrative sentences"]],html:`
 <h4>The core table</h4>
 <div class="les-tbl" style="grid-template-columns:.8fr 1fr 1fr 1fr">
 <span class="th"></span><span class="th">Singular (1)</span><span class="th">Plural (2+)</span><span class="th">Place</span>
@@ -2902,7 +2957,7 @@ ${P("This is my pen.","Đây là cây bút của tôi.")}${P("That is an old cha
 <h4>here / there = place, not object</h4>
 ${P("Come here.","Lại đây đi.")}${P("I am sitting here.","Tôi đang ngồi ở đây.")}${P("The shop is there.","Cửa hàng ở đó.")}${P("Look over there.","Nhìn đằng kia kìa.")}${P("I am here, near the door.","Tôi ở đây, gần cửa.")}${P("Yes, it is there, on the table.","Có, nó ở đó, trên bàn.")}${P("Can you bring it here?","Bạn mang nó lại đây được không?")}
 `},
-{n:2,title:"Question words",sub:"who / what / where / when / why / how / which",drills:[['wh',"Build questions"]],html:`
+{sec:'Grammar',ord:50,title:"Question words",sub:"who / what / where / when / why / how / which",drills:[['wh',"Build questions"]],html:`
 <h4>The golden rule</h4>
 <div class="les-rule">The question word <b>stays where the answer would be</b>. It never moves to the front like in English.</div>
 <p><em>Bạn đi đến trường như thế nào?</em> — word-for-word: "You go to school <b>how</b>?" English fronts it, Vietnamese doesn't. Automation target #2.</p>
@@ -2929,7 +2984,7 @@ ${P("Which book?","quyển sách nào?")}${P("Which do you like, A or B?","Bạn
 <h4>Full exchanges</h4>
 ${P("Who is here?","Ai đang ở đây?")}${P("My friend is here.","Bạn tôi đang ở đây.")}${P("What are you doing there?","Bạn đang làm gì ở đó?")}${P("I am reading a book.","Tôi đang đọc sách.")}${P("Where is your bag?","Cái túi của bạn ở đâu?")}${P("It is there, under the table.","Nó ở đó, dưới bàn.")}${P("Where are you?","Bạn đang ở đâu?")}${P("When do you study Vietnamese?","Bạn học tiếng Việt khi nào?")}${P("I study in the evening.","Tôi học vào buổi tối.")}${P("Why do you study Vietnamese?","Tại sao bạn học tiếng Việt?")}${P("Because I like Vietnam, so I want to learn.","Vì tôi thích Việt Nam nên tôi muốn học.")}${P("Do you study here or there?","Bạn học ở đây hay ở đó?")}${P("I study here because it is quiet here.","Tôi học ở đây vì ở đây yên tĩnh.")}${P("How do you go to school?","Bạn đi đến trường như thế nào?")}${P("I go by motorbike because my house is far.","Tôi đi bằng xe máy vì nhà tôi xa.")}${P("How do you learn Vietnamese?","Bạn học tiếng Việt như thế nào?")}${P("I learn by listening and speaking every day.","Tôi học bằng cách nghe và nói mỗi ngày.")}${P("How are you?","Bạn có khỏe không?")}${P("I'm fine, but yesterday I was a little tired.","Tôi khỏe, nhưng hôm qua tôi hơi mệt.")}${P("This is cheap, only 50,000 VND.","Cái này rẻ, chỉ 50 nghìn thôi.")}
 `},
-{n:3,title:"Linking words",sub:"và · nhưng · vì nên · rồi · chưa · lại",drills:[['cause',"Drill vì … nên …"],['done',"Drill rồi / chưa"],['again',"Drill lại"],['seq',"Drill trước khi / sau đó"]],html:`
+{sec:'Grammar',ord:110,title:"Linking words",sub:"và · nhưng · vì nên · rồi · chưa · lại",drills:[['cause',"Drill vì … nên …"],['done',"Drill rồi / chưa"],['again',"Drill lại"],['seq',"Drill trước khi / sau đó"]],html:`
 <h4>The list</h4>
 <div class="les-tbl" style="grid-template-columns:.8fr 1.2fr">
 <span class="th">Vietnamese</span><span class="th">English</span>
@@ -2976,7 +3031,7 @@ ${P("I did it already before going to bed.","Tôi làm rồi trước khi đi ng
 <span class="v">vì</span><span>reason</span><span class="v">nên</span><span>result</span><span class="v">nhưng</span><span>opposite idea</span><span class="v">và</span><span>add idea</span><span class="v">rồi</span><span>already</span><span class="v">chưa</span><span>not yet</span><span class="v">lại</span><span>again</span>
 </div>
 `},
-{n:4,title:"Vocabulary",sub:"the words from the 29/07 notebook",drills:[],html:`
+{sec:'Vocabulary',ord:200,title:"Vocabulary",sub:"the words from the 29/07 notebook",drills:[],html:`
 <h4>Weather &amp; mishap</h4>
 ${P("sky / the &quot;it&quot; of weather","trời")}${P("strong wind","gió mạnh")}${P("raincoat","áo mưa")}${P("wet","ướt")}${P("cold","lạnh")}${P("It rained heavily and it was windy.","Trời mưa rất to và gió mạnh.")}
 
@@ -2995,10 +3050,241 @@ ${P("sad","buồn")}${P("happy","vui")}${P("to forget","quên")}${P("to look for
 <h4>Two useful frames</h4>
 <div class="les-rule"><em>chỉ … thôi</em> = only &nbsp;·&nbsp; <em>… quá!</em> = too / so much</div>
 ${P("This is cheap, only 50,000 VND.","Cái này rẻ, chỉ 50 nghìn thôi.")}${P("This price is too expensive!","Giá này đắt quá!")}${P("You are important to me.","Bạn quan trọng với tôi.")}${P("Tomorrow we will go watch a movie at the theater.","Ngày mai chúng ta sẽ đi xem phim ở rạp chiếu phim.")}${P("I will send you a text message.","Tôi sẽ gửi tin nhắn cho bạn.")}
-`}
+`},
+
+/* ══ GRAMMAIRE — le reste des règles de l'app ══ */
+{sec:'Grammar',ord:10,title:"Sentence basics",sub:"word order · no « to be » before adjectives",drills:[['svo',"Build basic sentences"],['adj',"Adjective sentences"]],html:`
+<h4>1. The order is the same as English</h4>
+<div class="les-rule">Subject + Verb + Object.</div>
+${P("I eat rice.","Tôi ăn cơm.")}${P("I drink coffee.","Tôi uống cà phê.")}${P("I study Vietnamese.","Tôi học tiếng Việt.")}
+<p>Nothing to relearn here. No conjugation, no plural -s, no a/the. <b>Tôi ăn</b> covers I eat / I am eating / I ate.</p>
+
+<h4>2. Adjectives ARE verbs — kill the « to be »</h4>
+<div class="les-warn"><b>Mistake #1 for English speakers.</b> "I am tired" has 3 words. Vietnamese has 2: <span class="v">Tôi mệt</span> = literally <em>I tired</em>. Never say <s>Tôi là mệt</s>.</div>
+<div class="les-tbl" style="grid-template-columns:1fr 1fr 1fr">
+<span class="th">English</span><span class="th">Vietnamese</span><span class="th">Word-for-word</span>
+<span>I am tired</span><span class="v">Tôi mệt</span><span>I tired</span>
+<span>The coffee is hot</span><span class="v">Cà phê nóng</span><span>coffee hot</span>
+<span>This is beautiful</span><span class="v">Cái này đẹp</span><span>this beautiful</span>
+<span>She is very nice</span><span class="v">Cô ấy rất tốt</span><span>she very good</span>
+</div>
+
+<h4>3. « là » exists — but only before a NOUN</h4>
+<div class="les-rule">noun → use <b>là</b> &nbsp;·&nbsp; adjective → use <b>nothing</b>.</div>
+${P("I am a student.","Tôi là sinh viên.")}${P("This is my pen.","Đây là cây bút của tôi.")}${P("I am happy.","Tôi vui.")}${P("I am not a teacher.","Tôi không phải là giáo viên.")}
+<div class="les-warn">Ask yourself: is the next word a <b>thing</b> or a <b>quality</b>? Thing → là. Quality → drop it.</div>
+
+<h4>4. Intensity words go BEFORE the adjective</h4>
+${P("very good","rất tốt")}${P("too expensive","đắt quá")}${P("a little tired","hơi mệt")}${P("really beautiful","đẹp lắm")}
+<p><span class="v">rất</span> and <span class="v">hơi</span> come before. <span class="v">quá</span> and <span class="v">lắm</span> come after — they carry emotion.</p>
+`},
+
+{sec:'Grammar',ord:20,title:"Negation",sub:"không · chưa · không phải là",drills:[['neg',"Build negative sentences"]],html:`
+<h4>The rule</h4>
+<div class="les-rule"><b>không</b> goes right BEFORE the verb or the adjective. Never after.</div>
+${P("I don't understand.","Tôi không hiểu.")}${P("I don't know.","Tôi không biết.")}${P("This is not expensive.","Cái này không đắt.")}${P("I am not tired.","Tôi không mệt.")}${P("I don't want to go.","Tôi không muốn đi.")}
+
+<h4>Negating a noun: không phải là</h4>
+<div class="les-warn">You cannot say <s>Tôi không là sinh viên</s>. Before a noun the negation is the block <span class="v">không phải là</span> = "is not".</div>
+${P("I am not a teacher.","Tôi không phải là giáo viên.")}${P("This is not my bag.","Cái này không phải là túi của tôi.")}
+
+<h4>không has three jobs</h4>
+<div class="les-tbl" style="grid-template-columns:.7fr 1fr 1fr">
+<span class="th">Position</span><span class="th">Meaning</span><span class="th">Example</span>
+<span>before verb</span><span>not</span><span class="v">Tôi không đi</span>
+<span>end of question</span><span>yes/no marker</span><span class="v">Bạn có khỏe không?</span>
+<span>alone</span><span>zero / no</span><span class="v">Không.</span>
+</div>
+
+<h4>chưa = not yet</h4>
+<div class="les-rule">Before the verb = <b>not yet</b>. At the end = <b>"…yet?"</b> (a question).</div>
+${P("I haven't eaten yet.","Tôi chưa ăn.")}${P("Have you eaten yet?","Bạn ăn cơm chưa?")}${P("I looked but I haven't found it yet.","Tôi tìm rồi nhưng chưa thấy.")}
+`},
+
+{sec:'Grammar',ord:30,title:"Tenses",sub:"đã · đang · sẽ · rồi",drills:[['time',"Build sentences with tense"],['done',"Already / not yet"]],html:`
+<h4>Three little words, no conjugation</h4>
+<div class="les-rule">The marker goes just BEFORE the verb. The verb itself never changes.</div>
+<div class="les-tbl" style="grid-template-columns:.6fr 1fr 1fr">
+<span class="th">Word</span><span class="th">English</span><span class="th">Example</span>
+<span class="v">đã</span><span>past</span><span class="v">Tôi đã ăn</span>
+<span class="v">đang</span><span>-ing, right now</span><span class="v">Tôi đang ăn</span>
+<span class="v">sẽ</span><span>will</span><span class="v">Tôi sẽ ăn</span>
+</div>
+${P("I am studying.","Tôi đang học.")}${P("I will go.","Tôi sẽ đi.")}${P("I already ate.","Tôi đã ăn rồi.")}${P("Tomorrow we will go watch a movie.","Ngày mai chúng ta sẽ đi xem phim.")}
+
+<h4>You can drop them — and natives do</h4>
+<div class="les-warn">If a time word is already in the sentence (<em>hôm qua</em>, <em>ngày mai</em>, <em>lúc 3 giờ</em>), the marker becomes optional. <span class="v">Hôm qua tôi ăn phở</span> is perfect Vietnamese — "yesterday" already carries the past.</div>
+
+<h4>rồi = already, and it goes LAST</h4>
+${P("I already tidied up.","Tôi dọn rồi.")}${P("I already ate.","Tôi ăn rồi.")}${P("Have you tidied the room yet?","Bạn dọn phòng chưa?")}
+<div class="les-rule">Pair to memorise: <b>rồi</b> = done &nbsp;↔&nbsp; <b>chưa</b> = not yet / yet?</div>
+`},
+
+{sec:'Grammar',ord:40,title:"Yes / no questions",sub:"có … không · phải không · được không",drills:[['yn',"Build yes/no questions"]],html:`
+<h4>The frame</h4>
+<div class="les-rule"><b>có</b> + verb/adjective + <b>không ?</b> — the two words wrap around what you're asking about.</div>
+${P("Are you well?","Bạn có khỏe không?")}${P("Are you free?","Bạn có rảnh không?")}${P("Do you have coffee?","Bạn có cà phê không?")}${P("Is it expensive?","Cái này có đắt không?")}
+<p>In fast speech <span class="v">có</span> is often dropped: <span class="v">Bạn khỏe không?</span> Still correct.</p>
+
+<h4>Answering: there is no plain « yes »</h4>
+<div class="les-warn">You answer with the <b>verb</b>, not with "yes". Question with <em>có</em> → answer <span class="v">Có</span> / <span class="v">Không</span>. Question with <em>chưa</em> → answer <span class="v">Rồi</span> / <span class="v">Chưa</span>.</div>
+${P("Yes (I do).","Có.")}${P("No (I don't).","Không.")}${P("Yes, already.","Rồi.")}${P("Not yet.","Chưa.")}
+
+<h4>Two frames you'll use every day</h4>
+<div class="les-tbl" style="grid-template-columns:.8fr 1fr">
+<span class="th">Frame</span><span class="th">Use</span>
+<span class="v">… phải không?</span><span>…right? — checking something you believe</span>
+<span class="v">… được không?</span><span>can I? / is that ok?</span>
+</div>
+${P("You are Vietnamese, right?","Bạn là người Việt Nam, phải không?")}${P("Can I pay by card?","Tôi trả bằng thẻ được không?")}${P("Can you help me?","Bạn giúp tôi được không?")}
+`},
+
+{sec:'Grammar',ord:70,title:"Classifiers & counting",sub:"cái · con · chiếc · number + classifier + noun",drills:[['clf',"Build sentences with classifiers"]],html:`
+<h4>The rule</h4>
+<div class="les-rule"><b>number + classifier + noun</b>. English says "two cats", Vietnamese says "two <em>animal</em> cat".</div>
+${P("I have two cats.","Tôi có hai con mèo.")}${P("Give me one cake.","Cho tôi một cái bánh.")}${P("three books","ba quyển sách")}${P("two coffees","hai ly cà phê")}
+
+<h4>Which classifier?</h4>
+<div class="les-tbl" style="grid-template-columns:.5fr 1fr 1fr">
+<span class="th">Word</span><span class="th">Used for</span><span class="th">Example</span>
+<span class="v">cái</span><span>generic object</span><span>cái bàn, cái túi</span>
+<span class="v">con</span><span>animals</span><span>con mèo, con chó</span>
+<span class="v">chiếc</span><span>vehicles, single items</span><span>chiếc ô tô</span>
+<span class="v">cây</span><span>long thin things</span><span>cây bút</span>
+<span class="v">quyển</span><span>books, notebooks</span><span>quyển sách</span>
+<span class="v">người</span><span>people</span><span>hai người</span>
+<span class="v">ly / cốc</span><span>drinks in a glass</span><span>một ly cà phê</span>
+<span class="v">tô / bát</span><span>bowls</span><span>một tô phở</span>
+</div>
+<div class="les-warn">When in doubt use <span class="v">cái</span>. A wrong classifier is understood; a missing one sounds broken.</div>
+
+<h4>No plural -s</h4>
+<p>The noun never changes. Plural comes from a number, or from <span class="v">những</span> / <span class="v">các</span>.</p>
+${P("these things","những cái này")}${P("the friends","các bạn")}
+`},
+
+{sec:'Grammar',ord:80,title:"Possession",sub:"của — my, your, his",drills:[['poss',"Build possessive sentences"]],html:`
+<h4>The rule — reversed from English</h4>
+<div class="les-rule">Thing owned + <b>của</b> + owner. English says "my pen", Vietnamese says "pen of me".</div>
+<div class="les-tbl" style="grid-template-columns:1fr 1fr 1fr">
+<span class="th">English</span><span class="th">Vietnamese</span><span class="th">Word-for-word</span>
+<span>my pen</span><span class="v">cây bút của tôi</span><span>pen of me</span>
+<span>your bag</span><span class="v">cái túi của bạn</span><span>bag of you</span>
+<span>his house</span><span class="v">nhà của anh ấy</span><span>house of him</span>
+</div>
+${P("This is my coffee.","Đây là cà phê của tôi.")}${P("My friend is very nice.","Bạn của tôi rất tốt.")}${P("Where is your bag?","Cái túi của bạn ở đâu?")}
+
+<h4>Natives often drop « của »</h4>
+<div class="les-warn">With close things — family, friends, your own body — <em>của</em> disappears: <span class="v">bạn tôi</span> (my friend), <span class="v">mẹ tôi</span> (my mother). Keep it when the link is not obvious.</div>
+`},
+
+{sec:'Grammar',ord:90,title:"Comparison",sub:"hơn · nhất · bằng",drills:[['comp',"Build comparisons"]],html:`
+<h4>More than = adjective + hơn</h4>
+<div class="les-warn">There is no "more" word in front. English "more expensive" is <b>one</b> word here: <span class="v">đắt hơn</span> — literally <em>expensive-more</em>.</div>
+${P("This one is cheaper.","Cái này rẻ hơn.")}${P("Coffee is better than tea.","Cà phê ngon hơn trà.")}${P("Today is hotter than yesterday.","Hôm nay nóng hơn hôm qua.")}
+
+<h4>The most = adjective + nhất</h4>
+${P("This one is the cheapest.","Cái này rẻ nhất.")}${P("Pho is the most delicious.","Phở ngon nhất.")}${P("I like this one the most.","Tôi thích cái này nhất.")}
+
+<h4>As … as = bằng</h4>
+${P("This one is as expensive as that one.","Cái này đắt bằng cái kia.")}${P("I am not as tall as you.","Tôi không cao bằng bạn.")}
+<div class="les-rule">Pattern to lock in: <b>adjective + hơn / nhất / bằng</b>. The adjective always comes first.</div>
+`},
+
+{sec:'Grammar',ord:100,title:"Word order freedom",sub:"putting time and place first",drills:[['topic',"Front the time or the place"]],html:`
+<h4>Time and place can jump to the front</h4>
+<div class="les-rule">English usually ends with the time ("I go to the beach tomorrow"). Vietnamese prefers to <b>open</b> with it.</div>
+${P("Tomorrow I go to the beach.","Ngày mai tôi đi biển.")}${P("Today I am free.","Hôm nay tôi rảnh.")}${P("At home, I study Vietnamese.","Ở nhà, tôi học tiếng Việt.")}
+<p>Both orders are correct. Fronting is what natives do — it sets the scene, then tells you what happened.</p>
+
+<h4>Place = ở + location</h4>
+${P("I am at home.","Tôi ở nhà.")}${P("It is there, on the table.","Nó ở đó, trên bàn.")}${P("I study here because it is quiet here.","Tôi học ở đây vì ở đây yên tĩnh.")}
+<div class="les-warn"><span class="v">ở</span> is both "at/in" and the verb "to be located". <span class="v">Tôi ở Hà Nội</span> = I live in Hanoi — no other verb needed.</div>
+
+<h4>Full sentence skeleton</h4>
+<div class="les-rule">[Time] + Subject + [tense] + Verb + Object + [place] + [question word]</div>
+${P("Tomorrow I will eat pho at the restaurant.","Ngày mai tôi sẽ ăn phở ở nhà hàng.")}
+`},
+
+{sec:'Grammar',ord:120,title:"Pronouns & politeness",sub:"there is no single « you »",drills:[],html:`
+<h4>The thing English doesn't prepare you for</h4>
+<div class="les-warn">Vietnamese has no neutral "you". You pick the word based on the <b>age and status</b> of the person in front of you. Getting it wrong is the difference between polite and rude.</div>
+<div class="les-tbl" style="grid-template-columns:.6fr 1fr 1fr">
+<span class="th">Word</span><span class="th">Who</span><span class="th">You are…</span>
+<span class="v">anh</span><span>man slightly older</span><span>younger</span>
+<span class="v">chị</span><span>woman slightly older</span><span>younger</span>
+<span class="v">em</span><span>anyone younger</span><span>older</span>
+<span class="v">bạn</span><span>same age, neutral</span><span>peer</span>
+<span class="v">ông / bà</span><span>much older man / woman</span><span>much younger</span>
+<span class="v">cô / chú</span><span>parents' generation</span><span>much younger</span>
+</div>
+
+<h4>The mirror rule</h4>
+<div class="les-rule">The word you use for THEM decides the word you use for YOURSELF.</div>
+<p>Talking to an older man: he is <span class="v">anh</span>, so you become <span class="v">em</span> → <span class="v">Em cảm ơn anh</span>. Talking to someone younger: they are <span class="v">em</span>, you become <span class="v">anh/chị</span>.</p>
+${P("Thank you (to an older man).","Em cảm ơn anh.")}${P("Excuse me, sir.","Xin lỗi anh.")}${P("How are you? (to an older woman)","Chị có khỏe không?")}
+
+<h4>Safe defaults while you learn</h4>
+<div class="les-rule"><b>tôi</b> for "I" and <b>bạn</b> for "you" are always acceptable — slightly flat, never offensive.</div>
+${P("I","tôi")}${P("we","chúng tôi")}${P("we (including you)","chúng ta")}${P("he","anh ấy")}${P("she","cô ấy")}${P("they","họ")}
+
+<h4>Two words that make you sound local</h4>
+<div class="les-tbl" style="grid-template-columns:.5fr 1fr">
+<span class="th">Word</span><span class="th">Use</span>
+<span class="v">ơi</span><span>to call someone: <em>Anh ơi!</em> = Excuse me!</span>
+<span class="v">ạ</span><span>end of sentence = polite: <em>Cảm ơn ạ</em></span>
+</div>
+${P("Excuse me! (calling a waiter)","Anh ơi!")}${P("Thank you very much (polite).","Cảm ơn ạ.")}
+`},
+
+/* ══ VOCABULAIRE — généré depuis les 552 mots de l'app ══ */
+{sec:'Vocabulary',ord:210,title:"Greetings & everyday phrases",sub:"the things you say every day",drills:[],html:()=>V('salutations','présentation','phrases')},
+{sec:'Vocabulary',ord:220,title:"People, family & work",sub:"pronouns, relatives, jobs, feelings",drills:[],html:()=>V('pronoms','famille','métiers','amour')},
+{sec:'Vocabulary',ord:230,title:"Numbers & quantity",sub:"counting, prices, how much",drills:[['clf',"Count things out loud"]],html:()=>V('chiffres','nombres','quantité')},
+{sec:'Vocabulary',ord:240,title:"Time",sub:"days, months, moments, appointments",drills:[['time',"Build sentences with tense"],['topic',"Front the time"]],html:()=>V('temps','jours','mois','moment','fréquence','rendez-vous')},
+{sec:'Vocabulary',ord:250,title:"Food & restaurant",sub:"ordering, dishes, drinks",drills:[],html:()=>V('restaurant','nourriture')},
+{sec:'Vocabulary',ord:260,title:"Getting around",sub:"transport & travel",drills:[],html:()=>V('transport','voyage')},
+{sec:'Vocabulary',ord:270,title:"Shopping & bargaining",sub:"prices, objects, colours",drills:[['comp',"Compare prices"]],html:()=>V('marchander','objets','couleurs')},
+{sec:'Vocabulary',ord:280,title:"Describing things",sub:"adjectives & comparison",drills:[['adj',"Adjective sentences"],['comp',"Build comparisons"]],html:()=>V('adjectifs','comparaison')},
+{sec:'Vocabulary',ord:290,title:"Verbs",sub:"the actions you need first",drills:[['svo',"Build basic sentences"],['neg',"Negate them"]],html:()=>V('verbes')},
+{sec:'Vocabulary',ord:300,title:"Question words",sub:"gì · đâu · ai · bao nhiêu",drills:[['wh',"Build questions"],['yn',"Yes/no questions"]],html:()=>V('questions')},
+{sec:'Vocabulary',ord:310,title:"Linking & demonstratives",sub:"nên · sau đó · này · những",drills:[['cause',"Cause → result"],['dem',"Demonstratives"]],html:()=>V('liaison','démonstratifs')},
+{sec:'Vocabulary',ord:320,title:"Sounds & spelling",sub:"consonants that don't read like English",drills:[],html:()=>V('consonnes')},
+
+/* ══ CONVERSATION — les 152 phrases de l'app ══ */
+{sec:'Conversation',ord:900,title:"Full sentences",sub:"every sentence in the app, EN → VN",drills:[['svo',"Rebuild sentences"]],html:()=>SEN(0,60)},
+{sec:'Conversation',ord:910,title:"Full sentences — part 2",sub:"continued",drills:[['wh',"Rebuild questions"]],html:()=>SEN(60,110)},
+{sec:'Conversation',ord:920,title:"Full sentences — part 3",sub:"continued",drills:[['cause',"Rebuild linked sentences"]],html:()=>SEN(110,999)},
 ];
+/* Titres anglais des catégories de vocabulaire (les cat: sont en français dans les données). */
+const VCAT={salutations:"Greetings",présentation:"Introducing yourself",phrases:"Useful phrases",pronoms:"Pronouns",famille:"Family",métiers:"Jobs",amour:"Feelings & love",chiffres:"Digits",nombres:"Bigger numbers",quantité:"Quantity",temps:"Time",jours:"Days",mois:"Months",moment:"Moments of the day",fréquence:"Frequency","rendez-vous":"Appointments",restaurant:"At the restaurant",nourriture:"Food",transport:"Transport",voyage:"Travel",marchander:"Bargaining",objets:"Objects",couleurs:"Colours",adjectifs:"Adjectives",comparaison:"Comparison",verbes:"Verbs",questions:"Question words",consonnes:"Consonants",liaison:"Linking words",démonstratifs:"Demonstratives"};
+/* Construit une leçon de vocabulaire à partir des catégories réelles de `vocab`. */
+function V(){
+    const cats=[...arguments];
+    return cats.map(c=>{
+        const g=vocab.filter(v=>v.cat===c);
+        if(!g.length)return '';
+        return `<h4>${VCAT[c]||c} <span style="opacity:.5;font-weight:600">${g.length}</span></h4>`+g.map(v=>P(v.en,v.vn)).join('');
+    }).join('');
+}
+/* Construit une leçon à partir des phrases complètes de l'app. */
+function SEN(a,b){
+    const g=sentences.slice(a,b);
+    return `<p>Tap a line to hear it. Cover the Vietnamese column with your thumb and say it before you look.</p>`+g.map(s=>P(s.en,s.vn)).join('');
+}
+const SECTIONS=[['Grammar',"Comment construire une phrase"],['Vocabulary',"Tout le vocabulaire de l'app"],['Conversation',"Les phrases complètes"]];
 let lesIdx=-1;
 function lesSpeak(el){const v=el.querySelector('.vn');speak((v||el).textContent);}
+/* Ordre pédagogique : par section puis par `ord`. `_i` = index réel dans LESSONS, `_n` = numéro affiché. */
+function lesOrder(){
+    const out=[];
+    SECTIONS.forEach(([sec])=>{
+        LESSONS.map((l,i)=>({l,i})).filter(x=>x.l.sec===sec).sort((a,b)=>a.l.ord-b.l.ord)
+            .forEach(x=>out.push(Object.assign({},x.l,{_i:x.i})));
+    });
+    out.forEach((l,k)=>l._n=k+1);
+    return out;
+}
 function openLesson(i){lesIdx=i;renderCours();window.scrollTo({top:0});}
 function backLessons(){lesIdx=-1;renderCours();window.scrollTo({top:0});}
 function drillRule(r){
@@ -3013,16 +3299,26 @@ function renderCours(){
     const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
     document.getElementById('secCours').style.display='';
     const b=document.getElementById('coursBody');
+    const ord=lesOrder();
     if(lesIdx<0){
-        b.innerHTML='<div class="les-list">'+LESSONS.map((l,i)=>
-            `<button class="les-card" onclick="openLesson(${i})"><span class="les-n">${l.n}</span><span><h3>${l.title}</h3><p>${l.sub}</p></span></button>`
-        ).join('')+'</div>';
+        let out='';
+        SECTIONS.forEach(([sec,desc])=>{
+            const items=ord.filter(l=>l.sec===sec);
+            if(!items.length)return;
+            out+=`<div class="les-sec"><h2>${sec}</h2><p>${desc}</p></div><div class="les-list">`+
+                items.map(l=>`<button class="les-card" onclick="openLesson(${l._i})"><span class="les-n">${l._n}</span><span><h3>${l.title}</h3><p>${l.sub}</p></span></button>`).join('')+'</div>';
+        });
+        b.innerHTML=out;
     } else {
         const l=LESSONS[lesIdx];
         const drills=l.drills.length?'<div class="les-drill"><span class="lbl">Now build it yourself</span>'+
             l.drills.map(d=>`<button class="btn btn-p" onclick="drillRule('${d[0]}')"><svg class="ico ico-sm"><use href="#i-blocks"/></svg><span>${d[1]}</span></button>`).join('')+'</div>':'';
+        const num=(ord.find(x=>x._i===lesIdx)||{})._n||'';
+        const body=(typeof l.html==='function')?l.html():l.html;
+        const pos=ord.findIndex(x=>x._i===lesIdx),nxt=ord[pos+1];
+        const next=nxt?`<div class="les-nav" style="margin-top:14px"><button class="btn btn-o" onclick="openLesson(${nxt._i})"><span>Suivant : ${nxt.title}</span><svg class="ico ico-sm"><use href="#i-arrow-r"/></svg></button></div>`:'';
         b.innerHTML=`<div class="les-nav"><button class="btn btn-o" onclick="backLessons()"><svg class="ico ico-sm"><use href="#i-arrow-l"/></svg><span>Leçons</span></button></div>`+
-            `<div class="les-doc"><h3>${l.n}. ${l.title}</h3>${l.html}${drills}</div>`;
+            `<div class="les-doc"><h3>${num}. ${l.title}</h3>${body}${drills}</div>`+next;
     }
 }
 
