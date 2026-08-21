@@ -34,7 +34,7 @@ Tout est dans `index.html` (~1950 lignes). Structure interne :
    - **Sync** : `buildSyncURL()`, `syncProg()`, `checkURLImport()`, `exportData()`, `importData()`
    - **Stats** : `openStats()`, `updSRSStat()`, `statMsg()`
 
-`sw.js` — Service Worker cache-first, version actuelle : **v12**. À bumper à chaque déploiement touchant des assets.
+`sw.js` — Service Worker cache-first, version actuelle : **v38**. À bumper à chaque déploiement touchant des assets.
 
 ---
 
@@ -60,6 +60,15 @@ localStorage de la PWA est isolé du Safari browser. Le mécanisme de sync URL (
 
 ---
 
+## Prof IA (onglet `ia`)
+
+Traduction EN→VN (texte anglais généré calibré sur le vocab) + écriture libre corrigée. Backend : `api/ai.js`, fonction serverless Vercel → DeepSeek (`deepseek-chat`, JSON forcé).
+
+- **Env Vercel (production)** : `DEEPSEEK_API_KEY` (clé du VPS Hermes) + `AI_ACCESS_CODE` (code que l'app demande une fois, stocké localStorage `viet_ai_code`).
+- 3 tâches : `generate`, `correct-translation`, `correct-free` — payload/format JSON définis dans `api/ai.js`.
+- L'endpoint renvoie 401 sans le bon code — ne jamais exposer la clé côté client.
+- Claviers VN dédiés : `vRow3/tRow3` → `iaAns`, `vRow4/tRow4` → `iaFree` (convention : un clavier par input).
+
 ## Fichiers
 
 | Fichier | Rôle |
@@ -69,6 +78,7 @@ localStorage de la PWA est isolé du Safari browser. Le mécanisme de sync URL (
 | `manifest.json` | Manifest PWA |
 | `icon.svg` | Icône app |
 | `vercel.json` | Headers Vercel (no-cache sur sw.js) |
+| `api/ai.js` | Fonction serverless Prof IA (proxy DeepSeek) |
 | `gen-icons.html` | Outil interne génération icônes (gitignored) |
 
 <!-- tokenade-scaffold -->
