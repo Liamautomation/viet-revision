@@ -181,6 +181,20 @@
         .struct-slot-chip{background:linear-gradient(135deg,var(--p),var(--neon));color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 4px 14px -4px rgba(109,76,255,.6);}
         .struct-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px;}
         .struct-rule{padding:10px 13px;background:rgba(81,47,235,.1);border:1px solid rgba(81,47,235,.2);border-radius:9px;font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:8px;}
+        .ia-ta{width:100%;min-height:110px;padding:12px 14px;background:var(--s1);border:1px solid var(--s2);border-radius:10px;color:var(--text);font-size:1rem;line-height:1.5;outline:none;resize:vertical;font-family:inherit;margin-bottom:8px;}
+        .ia-ta:focus{border-color:var(--p);}
+        .ia-en{font-size:1.02rem;line-height:1.6;padding-right:8px;}
+        .ia-err{padding:10px 13px;background:var(--s1);border:1px solid var(--s2);border-left:3px solid #f87171;border-radius:9px;margin-bottom:8px;}
+        .ia-err-head{font-size:.9rem;margin-bottom:4px;}
+        .ia-quote{color:#f87171;text-decoration:line-through;}
+        .ia-fix{color:#4ade80;font-weight:700;}
+        .ia-type{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;background:var(--s2);color:var(--muted);padding:2px 7px;border-radius:8px;margin-left:6px;vertical-align:middle;}
+        .ia-why{font-size:.79rem;color:var(--muted);line-height:1.55;}
+        .ia-score{display:flex;align-items:center;gap:10px;margin:10px 0;}
+        .ia-score-n{font-size:1.6rem;font-weight:800;color:var(--p);}
+        .ia-corrected{padding:12px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;font-size:1.02rem;line-height:1.6;color:#4ade80;margin-bottom:10px;}
+        .ia-spin{display:inline-block;animation:iaspin 1s linear infinite;}
+        @keyframes iaspin{to{transform:rotate(360deg)}}
         .struct-rule strong{color:#a78bfa;}
 
         /* Cours */
@@ -500,6 +514,9 @@
         </button>
         <button class="seg-btn active" data-tab="exercices" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-edit"/></svg> Exercices
+        </button>
+        <button class="seg-btn" data-tab="ia" onclick="setTab(this)">
+            <svg class="ico ico-sm"><use href="#i-flame"/></svg> Prof IA
         </button>
         <button class="seg-btn" data-tab="prononciation" onclick="setTab(this)">
             <svg class="ico ico-sm"><use href="#i-mic"/></svg> Pronon.
@@ -871,6 +888,99 @@
         </div>
         <div style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px">
             Touche les blocs dans l'ordre vietnamien · touche un bloc placé pour le retirer
+        </div>
+    </div>
+
+    <!-- ── Section Prof IA ── -->
+    <div id="secIA" style="display:none">
+        <div class="seg">
+            <button class="seg-btn active" data-ia="trad" onclick="setIA(this)">
+                <svg class="ico ico-sm"><use href="#i-book"/></svg> Traduction
+            </button>
+            <button class="seg-btn" data-ia="libre" onclick="setIA(this)">
+                <svg class="ico ico-sm"><use href="#i-edit"/></svg> Écriture libre
+            </button>
+        </div>
+
+        <!-- Code d'accès -->
+        <div id="iaCodeBox" style="display:none">
+            <div class="kb">
+                <div class="kb-title">Code d'accès Prof IA</div>
+                <input type="text" class="ia-ta" style="min-height:auto" id="iaCodeIn" placeholder="Code…" autocomplete="off" autocapitalize="off"/>
+                <button class="btn btn-p btn-full" onclick="saveIACode()">Déverrouiller</button>
+            </div>
+        </div>
+
+        <!-- Mode traduction -->
+        <div id="iaTrad">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span class="ctrl-label">Longueur</span>
+                <div class="ctrl-right" style="margin-left:auto;display:flex;gap:5px">
+                    <button class="spd-btn active" data-ialen="court" onclick="setIALen(this)">Court</button>
+                    <button class="spd-btn" data-ialen="moyen" onclick="setIALen(this)">Moyen</button>
+                    <button class="spd-btn" data-ialen="long" onclick="setIALen(this)">Long</button>
+                </div>
+            </div>
+            <div class="card" id="iaTextCard" style="display:none;min-height:auto;margin-bottom:10px">
+                <span class="card-tag" id="iaTitle"></span>
+                <div class="ia-en" id="iaEnglish"></div>
+                <div class="struct-rule" id="iaHints" style="display:none"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-s" id="iaNewBtn" onclick="iaNewText(this)">
+                    <svg class="ico"><use href="#i-refresh"/></svg> Nouveau texte
+                </button>
+                <button class="btn btn-o" id="iaHintBtn" onclick="iaToggleHints()" style="display:none">Indices</button>
+            </div>
+            <div id="iaTradWork" style="display:none">
+                <textarea class="ia-ta" id="iaAns" placeholder="Ta traduction en vietnamien…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                <div class="kb">
+                    <div class="kb-title">Voyelle → ton → inséré</div>
+                    <div class="v-row" id="vRow3"></div>
+                    <div class="t-row" id="tRow3"><span class="t-lbl">Tons :</span></div>
+                    <div class="ex-row">
+                        <button class="vb" onclick="insTo('iaAns','đ')">đ</button>
+                        <button class="vb" onclick="bspIn('iaAns')">⌫</button>
+                        <button class="vb" onclick="insTo('iaAns',' ')" style="min-width:52px">espace</button>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-p btn-full" id="iaTradBtn" onclick="iaCorrectTrad(this)">
+                        <svg class="ico"><use href="#i-check"/></svg> Corriger
+                    </button>
+                </div>
+            </div>
+            <div id="iaTradRes"></div>
+        </div>
+
+        <!-- Mode écriture libre -->
+        <div id="iaLibre" style="display:none">
+            <div class="card" style="min-height:auto;margin-bottom:10px">
+                <span class="card-tag">Sujet</span>
+                <div class="ia-en" id="iaTopic"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-s" onclick="iaNewTopic()">
+                    <svg class="ico"><use href="#i-refresh"/></svg> Autre sujet
+                </button>
+            </div>
+            <textarea class="ia-ta" id="iaFree" style="min-height:150px" placeholder="Écris librement en vietnamien… (2-3 phrases minimum)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+            <div class="kb">
+                <div class="kb-title">Voyelle → ton → inséré</div>
+                <div class="v-row" id="vRow4"></div>
+                <div class="t-row" id="tRow4"><span class="t-lbl">Tons :</span></div>
+                <div class="ex-row">
+                    <button class="vb" onclick="insTo('iaFree','đ')">đ</button>
+                    <button class="vb" onclick="bspIn('iaFree')">⌫</button>
+                    <button class="vb" onclick="insTo('iaFree',' ')" style="min-width:52px">espace</button>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-p btn-full" id="iaFreeBtn" onclick="iaCorrectFree(this)">
+                    <svg class="ico"><use href="#i-check"/></svg> Corriger
+                </button>
+            </div>
+            <div id="iaFreeRes"></div>
         </div>
     </div>
 
@@ -1916,8 +2026,8 @@ function setTab(btn){
     document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));
     deck=buildDeck();
     flashIdx=0;flashFlipped=false;pronIdx=0;
-    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen',isStruct=mainTab==='structure',isCours=mainTab==='cours';
-    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen||isStruct||isCours)?'none':'';
+    const isExam=mainTab==='examen',isPron=mainTab==='prononciation',isTons=mainTab==='tons',isPat=mainTab==='patterns',isListen=mainTab==='listen',isStruct=mainTab==='structure',isCours=mainTab==='cours',isIA=mainTab==='ia';
+    document.getElementById('modeRow').style.display=(isPron||isExam||isTons||isPat||isListen||isStruct||isCours||isIA)?'none':'';
     document.getElementById('exRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('scoresRow').style.display=mainTab==='exercices'?'':'none';
     document.getElementById('secExam').style.display=isExam?'':'none';
@@ -1926,11 +2036,14 @@ function setTab(btn){
     document.getElementById('secListen').style.display=isListen?'':'none';
     document.getElementById('secStruct').style.display=isStruct?'':'none';
     document.getElementById('secCours').style.display=isCours?'':'none';
-    /* Cours = lecture : on masque les contrôles de session (cats, SRS, vitesse, barre de progression) */
-    document.getElementById('catRow').style.display=isCours?'none':'';
-    document.querySelectorAll('.ctrl-row').forEach(e=>e.style.display=isCours?'none':'');
-    ['.prog-label','.prog-bar'].forEach(s=>{const e=document.querySelector(s);if(e)e.style.display=isCours?'none':'';});
-    if(isCours){lesIdx=-1;renderCours();}
+    document.getElementById('secIA').style.display=isIA?'':'none';
+    /* Cours & IA = pas de contrôles de session (cats, SRS, vitesse, barre de progression) */
+    const noCtrl=isCours||isIA;
+    document.getElementById('catRow').style.display=noCtrl?'none':'';
+    document.querySelectorAll('.ctrl-row').forEach(e=>e.style.display=noCtrl?'none':'');
+    ['.prog-label','.prog-bar'].forEach(s=>{const e=document.querySelector(s);if(e)e.style.display=noCtrl?'none':'';});
+    if(isIA){renderIA();}
+    else if(isCours){lesIdx=-1;renderCours();}
     else if(mainTab==='fiches')renderFlash();
     else if(isPron)renderPron();
     else if(isTons)renderTons();
@@ -1947,7 +2060,8 @@ function reset(){
     flashIdx=0;flashFlipped=false;flashSearch='';
     const si=document.getElementById('searchIn');if(si)si.value='';
     pronIdx=0;
-    if(mainTab==='cours')renderCours();
+    if(mainTab==='ia')renderIA();
+    else if(mainTab==='cours')renderCours();
     else if(mainTab==='fiches')renderFlash();
     else if(mainTab==='prononciation')renderPron();
     else if(mainTab==='tons')renderTons();
@@ -3541,6 +3655,120 @@ if('serviceWorker' in navigator){
         if(swRefreshing)return;swRefreshing=true;location.reload();
     });
 }
+
+/* ══════════════════════════════
+   ── PROF IA (traduction + écriture libre, /api/ai → DeepSeek) ──
+══════════════════════════════ */
+const IA_CODE_KEY='viet_ai_code';
+let iaLen='court',iaCurText=null;
+const iaSpeakTxt={trad:'',free:''};
+const IA_TOPICS=[
+    "Décris ta journée d'aujourd'hui.",
+    "Qu'est-ce que tu as mangé ce matin ? Où ?",
+    "Présente-toi : nom, âge, métier, où tu habites.",
+    "Décris ta famille.",
+    "Tu es au marché : qu'est-ce que tu achètes ? Négocie les prix.",
+    "Commande un repas au restaurant (plats, boisson, l'addition).",
+    "Explique comment tu vas au travail (transport, durée).",
+    "Décris le temps qu'il fait cette semaine à Đà Nẵng.",
+    "Raconte ton dernier week-end.",
+    "Qu'est-ce que tu vas faire demain ? Et ce week-end ?",
+    "Décris ton café préféré et ce que tu y commandes.",
+    "Tu rencontres quelqu'un de nouveau : pose-lui 3 questions et réponds pour toi."
+];
+function escIA(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function iaCode(){try{return localStorage.getItem(IA_CODE_KEY)||'';}catch{return'';}}
+function saveIACode(){
+    const v=document.getElementById('iaCodeIn').value.trim();if(!v)return;
+    try{localStorage.setItem(IA_CODE_KEY,v);}catch{}
+    document.getElementById('iaCodeBox').style.display='none';
+}
+function renderIA(){
+    ['card','fb','secE','secQ','secP','secF','secPron','secExam','secPhrase','secTons','secPat','secListen','secStruct','secCours','end'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+    const endEl=document.getElementById('end');if(endEl)endEl.classList.remove('show');
+    document.getElementById('secIA').style.display='';
+    document.getElementById('iaCodeBox').style.display=iaCode()?'none':'';
+    if(!document.getElementById('iaTopic').textContent)iaNewTopic();
+}
+function setIA(btn){
+    const m=btn.dataset.ia;
+    document.querySelectorAll('[data-ia]').forEach(b=>b.classList.toggle('active',b===btn));
+    document.getElementById('iaTrad').style.display=m==='trad'?'':'none';
+    document.getElementById('iaLibre').style.display=m==='libre'?'':'none';
+}
+function setIALen(btn){iaLen=btn.dataset.ialen;document.querySelectorAll('[data-ialen]').forEach(b=>b.classList.toggle('active',b===btn));}
+async function aiCall(task,payload,btn){
+    const old=btn.innerHTML;
+    btn.disabled=true;btn.innerHTML='<span class="ia-spin">◌</span> Le prof réfléchit…';
+    try{
+        const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:iaCode(),task,payload})});
+        if(r.status===401){document.getElementById('iaCodeBox').style.display='';throw new Error("Code d'accès manquant ou invalide — entre-le en haut.");}
+        const d=await r.json().catch(()=>({}));
+        if(!r.ok)throw new Error(d.error||('Erreur serveur '+r.status));
+        return d;
+    }catch(e){
+        if(e instanceof TypeError)throw new Error('Pas de connexion — le Prof IA a besoin d\'internet.');
+        throw e;
+    }finally{btn.disabled=false;btn.innerHTML=old;}
+}
+function iaErrHTML(msg){return '<div class="fb ko" style="display:block">'+escIA(msg)+'</div>';}
+function iaResultHTML(d,key){
+    iaSpeakTxt[key]=d.corrected||'';
+    let h='<div class="ia-score"><span class="ia-score-n">'+escIA(d.score)+'/10</span><span style="font-size:.82rem;color:var(--muted)">'+escIA(d.comment||'')+'</span></div>';
+    h+='<div class="ia-corrected">'+escIA(d.corrected||'')+'</div>';
+    h+='<div class="actions"><button class="btn btn-s" onclick="speak(iaSpeakTxt.'+key+')"><svg class="ico"><use href="#i-vol"/></svg> Écouter la correction</button></div>';
+    const errs=d.errors||[];
+    if(!errs.length)h+='<div class="fb ok" style="display:block">Aucune faute — parfait !</div>';
+    else h+=errs.map(e=>'<div class="ia-err"><div class="ia-err-head"><span class="ia-quote">'+escIA(e.quote)+'</span> → <span class="ia-fix">'+escIA(e.fix)+'</span><span class="ia-type">'+escIA(e.type)+'</span></div><div class="ia-why">'+escIA(e.why)+'</div></div>').join('');
+    return h;
+}
+async function iaNewText(btn){
+    const res=document.getElementById('iaTradRes');res.innerHTML='';
+    try{
+        const words=[...new Set(vocab.map(c=>c.vn))];
+        const d=await aiCall('generate',{length:iaLen,words},btn);
+        iaCurText=d;
+        document.getElementById('iaTitle').textContent=d.title||'';
+        document.getElementById('iaEnglish').textContent=d.english||'';
+        const hints=(d.hints||[]).join(' · ');
+        const hEl=document.getElementById('iaHints');hEl.textContent=hints;hEl.style.display='none';
+        document.getElementById('iaHintBtn').style.display=hints?'':'none';
+        document.getElementById('iaTextCard').style.display='';
+        document.getElementById('iaTradWork').style.display='';
+        document.getElementById('iaAns').value='';
+    }catch(e){res.innerHTML=iaErrHTML(e.message);}
+}
+function iaToggleHints(){const h=document.getElementById('iaHints');h.style.display=h.style.display==='none'?'':'none';}
+async function iaCorrectTrad(btn){
+    const res=document.getElementById('iaTradRes');
+    const attempt=document.getElementById('iaAns').value.trim();
+    if(!iaCurText){res.innerHTML=iaErrHTML('Génère d\'abord un texte.');return;}
+    if(!attempt){res.innerHTML=iaErrHTML('Écris ta traduction d\'abord.');return;}
+    res.innerHTML='';
+    try{
+        const d=await aiCall('correct-translation',{english:iaCurText.english,attempt},btn);
+        res.innerHTML=iaResultHTML(d,'trad');
+    }catch(e){res.innerHTML=iaErrHTML(e.message);}
+}
+function iaNewTopic(){
+    const cur=document.getElementById('iaTopic').textContent;
+    let t=cur;while(t===cur)t=IA_TOPICS[Math.floor(Math.random()*IA_TOPICS.length)];
+    document.getElementById('iaTopic').textContent=t;
+}
+async function iaCorrectFree(btn){
+    const res=document.getElementById('iaFreeRes');
+    const text=document.getElementById('iaFree').value.trim();
+    if(!text){res.innerHTML=iaErrHTML('Écris quelque chose d\'abord.');return;}
+    res.innerHTML='';
+    try{
+        const d=await aiCall('correct-free',{text,topic:document.getElementById('iaTopic').textContent},btn);
+        let h=iaResultHTML(d,'free');
+        if(d.followup)h+='<div class="struct-rule"><b>Pour continuer :</b> '+escIA(d.followup)+'</div>';
+        res.innerHTML=h;
+    }catch(e){res.innerHTML=iaErrHTML(e.message);}
+}
+buildKB('vRow3','tRow3','iaAns');
+buildKB('vRow4','tRow4','iaFree');
 </script>
 </body>
 </html>
